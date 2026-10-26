@@ -176,6 +176,10 @@
     position: absolute; inset: 0; border-radius: 12px; background-color: #e8e4dc; background-repeat: no-repeat;
     filter: invert(.92) hue-rotate(180deg) saturate(.55) brightness(.85); /* 밝은 OSM 타일을 밤하늘 톤으로 */
   }
+  .thumb.photo i { filter: none; animation: fade .3s ease-out; }
+  .thumb.photo::after { display: none; }
+  @keyframes fade { from { opacity: 0; } }
+  .credit { padding: 6px 10px 2px; text-align: right; font-size: 10px; color: var(--dim); opacity: .7; }
   .thumb::after {
     content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px; border-radius: 50%;
     background: var(--gold); box-shadow: 0 0 0 3px rgba(244, 207, 107, .3), 0 0 10px var(--gold);
@@ -327,6 +331,7 @@ import { HANGANG } from './hangang.js'
 // 카카오 JS 키는 .env → config.js 로 들어옴 (node build-config.mjs). ?kakao=키 로 덮어쓸 수 있고, 없으면 OSM 검색
 const config = await import('./config.js').catch(() => ({}))
 const KAKAO_KEY = new URLSearchParams(location.search).get('kakao') || config.KAKAO_KEY || ''
+const GOOGLE_KEY = config.GOOGLE_KEY || ''
 const MIN = 3, MAX = 20
 const $ = (id) => document.getElementById(id)
 const track = (name, params) => window.gtag?.('event', name, params)
@@ -453,13 +458,19 @@ const useKakao = (q) => KAKAO_KEY && !JA_TEXT.test(q)
 
 async function search(q) {
   if (useKakao(q)) {
-    const places = await kakaoPlaces()
-    return new Promise((resolve) => places.keywordSearch(q, (data, status) => {
-      resolve(status === window.kakao.maps.services.Status.OK ? data.map((p) => ({
-        id: `k${p.id}`, name: p.place_name, lat: +p.y, lng: +p.x,
-        category: p.category_name || p.category_group_name, address: p.road_address_name || p.address_name,
-      })) : [])
-    }))
+    try {
+      const places = await kakaoPlaces()
+      return await new Promise((resolve, reject) => places.keywordSearch(q, (data, status) => {
+        const S = window.kakao.maps.services.Status
+        if (status === S.ERROR) return reject(new Error('kakao'))
+        resolve(status === S.OK ? data.map((p) => ({
+          id: `k${p.id}`, name: p.place_name, lat: +p.y, lng: +p.x,
+          category: p.category_name || p.category_group_name, address: p.road_address_name || p.address_name,
+        })) : [])
+      }))
+    } catch {
+      // 등록 안 된 도메인(localhost 등)이거나 카카오 장애: OSM으로 대신 찾음
+    }
   }
   // ponytail: Nominatim은 동네 가게 커버리지가 약하고 초당 1회 제한. 한국어 검색은 카카오 키로 넘어감
   const al = JA_TEXT.test(q) || lang === 'ja' ? 'ja' : 'ko'
@@ -584,6 +595,43 @@ function hint(text, isErr = false) {
   $('hint').classList.toggle('err', isErr)
 }
 
+// ---------- 가게 사진 (Google Places) ----------
+let googleReady = null
+function googlePlaces() {
+  googleReady ??= new Promise((resolve, reject) => {
+    window.__byeolloMaps = () => window.google.maps.importLibrary('places').then(resolve, reject)
+    const s = document.createElement('script')
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_KEY)}&v=weekly&loading=async&callback=__byeolloMaps`
+    s.onerror = () => reject(new Error('Google Maps를 불러오지 못했어요'))
+    document.head.append(s)
+  })
+  return googleReady
+}
+
+// 같은 가게는 한 번만 찾음 (검색·선택 목록이 다시 그려질 때 중복 호출 방지)
+const photoCache = new Map()
+function photoFor(p) {
+  if (!GOOGLE_KEY) return Promise.resolve(null)
+  if (!photoCache.has(p.id)) {
+    photoCache.set(p.id, (async () => {
+      try {
+        const { Place } = await googlePlaces()
+        const { places } = await Place.searchByText({
+          textQuery: p.name, fields: ['location', 'photos'], maxResultCount: 1, language: lang,
+          locationBias: { center: { lat: p.lat, lng: p.lng }, radius: 150 },
+        })
+        const g = places[0]
+        // 이름만 같은 다른 지점이면 안 씀
+        const near = g?.location && distKm(p, { lat: g.location.lat(), lng: g.location.lng() }) < 0.2
+        return near && g.photos?.length ? g.photos[0].getURI({ maxWidth: 160, maxHeight: 160 }) : null
+      } catch {
+        return null // 키 제한·할당량 초과 등: 미니맵으로 대신함
+      }
+    })())
+  }
+  return photoCache.get(p.id)
+}
+
 // ponytail: OSM 타일은 가벼운 사용만 허용. 트래픽 늘면 카카오 정적지도나 유료 타일로 교체
 function thumb(p, size) {
   const z = 16, n = 2 ** z, r = (p.lat * Math.PI) / 180
@@ -598,6 +646,15 @@ function thumb(p, size) {
     backgroundPosition: `${size / 2 - (x % 1) * 256}px ${size / 2 - (y % 1) * 256}px`,
   })
   el.querySelector('em').textContent = ICON[bucket(p.category)]
+  photoFor(p).then((url) => {
+    if (!url) return
+    const img = new Image()
+    img.onload = () => {
+      Object.assign(el.querySelector('i').style, { backgroundImage: `url("${url}")`, backgroundPosition: 'center', backgroundSize: 'cover' })
+      el.classList.add('photo')
+    }
+    img.src = url
+  })
   return el
 }
 
@@ -628,7 +685,7 @@ function renderResults(list, q) {
     li.append(thumb(p, 52), text)
     li.onclick = () => add(p)
     return li
-  }))
+  }).concat(GOOGLE_KEY ? [Object.assign(document.createElement('li'), { className: 'credit', textContent: 'Photos © Google' })] : []))
   syncActive()
 }
 

@@ -26,6 +26,7 @@ jobs:
         run: node build-config.mjs
         env:
           KAKAO_JS_KEY: ${{ secrets.KAKAO_JS_KEY }}
+          GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .

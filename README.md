@@ -31,7 +31,7 @@
 | | 기능 |
 |---|---|
 | 📅 **날짜 고르기** | 달력에서 간 날을 골라요. 이미 가게를 고른 날에는 금색 점이 찍혀요 |
-| 🔍 **가게 검색** | 이름을 치면 입력창 밑에 바로 결과가 떠요. 위치 미니맵과 카테고리 아이콘이 같이 나와서 같은 이름의 지점도 구분돼요 |
+| 🔍 **가게 검색** | 이름을 치면 입력창 밑에 바로 결과가 떠요. 가게 사진(Google Places)과 카테고리 아이콘이 같이 나와요. 사진이 없는 가게는 위치 미니맵을 보여줘서 같은 이름의 지점도 구분돼요 |
 | ✦ **별자리 만들기** | 다녀온 순서대로 선이 그어지는 애니메이션과 함께 별자리가 떠요. 이름은 자동으로 붙고 바꿀 수 있어요 |
 | 💬 **한 줄 멘트** | 가장 자주 간 가게, 별자리 지름, 주말 비율을 짧은 멘트로 알려 줘요 |
 | 🇯🇵 **日本語** | 오른쪽 위 한/日 버튼으로 화면 전체가 일본어로 바뀌어요. 한국에 놀러 온 여행자가 `明洞餃子`, `広蔵市場`처럼 일본어로 검색할 수 있어요. 브라우저가 일본어면 처음부터 일본어로 열려요 |
@@ -77,11 +77,21 @@ node logic.test.mjs   # ok 가 나오면 통과
 키는 저장소에 올리지 않고 `.env`로 관리해요.
 
 ```bash
-cp .env.example .env        # KAKAO_JS_KEY= 에 키 입력
+cp .env.example .env        # KAKAO_JS_KEY=, GOOGLE_MAPS_KEY= 에 키 입력
 node build-config.mjs       # .env → config.js (git에 안 올라감)
 ```
 
-배포할 때는 저장소 **Settings → Secrets and variables → Actions**의 `KAKAO_JS_KEY`를 GitHub Actions가 읽어서 같은 방식으로 `config.js`를 만들어요. 주소 뒤에 `?kakao=<키>`를 붙이면 잠깐 다른 키로 바꿔 볼 수 있어요.
+배포할 때는 저장소 **Settings → Secrets and variables → Actions**의 `KAKAO_JS_KEY`, `GOOGLE_MAPS_KEY`를 GitHub Actions가 읽어서 같은 방식으로 `config.js`를 만들어요. 주소 뒤에 `?kakao=<키>`를 붙이면 잠깐 다른 키로 바꿔 볼 수 있어요.
+
+### 가게 사진 키
+
+Google Cloud에서 **Places API (New)**와 **Maps JavaScript API**를 켜고 API 키를 만들어요. 키에는 꼭 제한을 걸어요.
+
+- 애플리케이션 제한: 웹사이트 `https://chromeheartz.github.io/*`, `http://localhost:8790/*`
+- API 제한: 위 두 API만
+- 할당량: Places API (New)의 `SearchTextRequest per day`, `GetPhotoMediaRequest per day`를 낮게 (과금 방지)
+
+키가 없거나 할당량을 넘으면 사진 대신 위치 미니맵이 나와요. 카카오 검색이 실패하면(localhost처럼 등록 안 된 주소) OpenStreetMap 검색으로 넘어가요.
 
 > 카카오 JavaScript 키는 브라우저에서 쓰는 공개용 키라 배포된 페이지에서는 보여요. `.env`는 키를 코드 기록에 남기지 않는 용도이고, 실제 보호는 카카오 콘솔의 도메인 등록이 해요.
 
@@ -107,7 +117,7 @@ index.html        화면 전체 (마크업 · 스타일 · UI 스크립트)
 logic.js          별자리 계산, 이름 · 멘트 만들기
 logic.test.mjs    logic.js 테스트
 hangang.js        한강 중심선 좌표 (별자리 배경용, OpenStreetMap)
-build-config.mjs  .env → config.js (카카오 키)
+build-config.mjs  .env → config.js (카카오 · 구글 키)
 .github/          GitHub Pages 배포 (push 하면 자동)
 icons/            앱 아이콘 (1024 · 512 · 192 · 180 · 32)
 docs/             README 이미지
