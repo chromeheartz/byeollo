@@ -69,6 +69,19 @@ export function analyze(visits) {
   }
 }
 
+/**
+ * @template {{ lat: number, lng: number }} T
+ * @returns {{ item: T, km: number } | null} 가장 가까운 항목과 거리
+ */
+export function nearest(p, items) {
+  let best = null
+  for (const item of items) {
+    const km = distKm(p, item)
+    if (!best || km < best.km) best = { item, km }
+  }
+  return best
+}
+
 /** @typedef {'ko' | 'ja'} Lang */
 
 const NAMES = {

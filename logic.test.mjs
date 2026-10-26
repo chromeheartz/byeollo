@@ -1,6 +1,6 @@
 // node logic.test.mjs
 import assert from 'node:assert/strict'
-import { analyze, constellationName, bucket, remarks } from './logic.js'
+import { analyze, constellationName, bucket, remarks, nearest } from './logic.js'
 
 const v = (id, lat, lng, category, date) => ({ id, name: id, lat, lng, category, date })
 
@@ -43,4 +43,8 @@ assert.equal(bucket('amenity marketplace'), '쇼핑')
 assert.equal(bucket('historic castle'), '문화')
 assert.equal(constellationName(fresh, 'ja'), 'ごはん座')
 assert.match(remarks(regular, 'ja')[0], /4回|3回/)
+const near = nearest({ lat: 37.5446, lng: 127.0557 }, [{ lat: 37.5446, lng: 127.0560, n: '성수' }, { lat: 37.5563, lng: 126.9236, n: '홍대' }])
+assert.equal(near.item.n, '성수')
+assert.ok(near.km < 0.05)
+assert.equal(nearest({ lat: 0, lng: 0 }, []), null)
 console.log('ok')

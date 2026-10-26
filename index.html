@@ -85,8 +85,7 @@
   }
   input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
 
-  .row { display: grid; grid-template-columns: 11.5rem 1fr; gap: 10px; }
-  @media (max-width: 440px) { .row { grid-template-columns: 1fr; } }
+  .row { display: grid; gap: 16px; }
 
   /* 날짜 선택: 버튼 + 달력 팝업 */
   .dp { position: relative; }
@@ -157,7 +156,7 @@
   .results:empty { display: none; }
   @keyframes drop { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
   .opt {
-    display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
     padding: 8px 10px 8px 8px; border-radius: 12px; cursor: pointer; transition: background .1s;
   }
   .opt:hover, .opt[aria-selected="true"] { background: var(--gold-soft); }
@@ -201,6 +200,14 @@
     padding: 9px 0 9px 20px; animation: pop .35s cubic-bezier(.2,1.4,.4,1);
   }
   .picked li div { min-width: 0; }
+  .picked li { grid-template-columns: auto 1fr auto auto; }
+  .maplink {
+    display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--dim); font: 600 12px var(--sans); text-decoration: none; white-space: nowrap;
+    transition: color .12s, border-color .12s, background .12s;
+  }
+  .maplink:hover, .maplink:focus-visible { outline: none; color: var(--gold); border-color: var(--gold); background: var(--gold-soft); }
+  .maplink svg { flex: none; }
   .picked li b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .picked li .thumb em { width: 20px; height: 20px; font-size: 11px; right: -5px; bottom: -5px; }
   .picked li::before {
@@ -325,7 +332,8 @@
 </main>
 
 <script type="module">
-import { analyze, bucket, constellationName, distKm, remarks } from './logic.js'
+import { analyze, bucket, constellationName, distKm, nearest, remarks } from './logic.js'
+import { STATIONS } from './stations.js'
 import { HANGANG } from './hangang.js'
 
 // 카카오 JS 키는 .env → config.js 로 들어옴 (node build-config.mjs). ?kakao=키 로 덮어쓸 수 있고, 없으면 OSM 검색
@@ -353,6 +361,9 @@ const T = {
     searching: '찾는 중…', none: '검색 결과가 없어요. 동네 이름을 같이 넣어 보세요.', searchErr: '검색 중 문제가 생겼어요',
     max: (n) => `별은 ${n}개까지만 띄울 수 있어요`, dup: '같은 날 같은 가게는 이미 있어요',
     make: '별자리 만들기', makeMore: (n) => `별자리 만들기 (${n}곳 더)`, empty: '아직 고른 가게가 없어요', remove: (n) => `${n} 빼기`,
+    map: '지도', mapAria: (n) => `${n} 지도에서 보기`,
+    station: (s, km) => (km <= 1.5 ? `${s} 도보 ${Math.max(1, Math.round((km * 1000) / 80))}분` : `${s}에서 ${km.toFixed(1)}km`),
+    stationName: (ko) => (ko.endsWith('역') ? ko : `${ko}역`),
     stats: ['별', '선', '지름'], river: '한강', card: '별로 · 내 가게들의 별자리', shareText: (n) => `이번 달 별로였어? 내 별자리는 ${n}`,
     cat: {},
   },
@@ -370,6 +381,9 @@ const T = {
     searching: '検索中…', none: '見つかりませんでした。地名も一緒に入れてみてください。', searchErr: '検索中に問題が起きました',
     max: (n) => `星は${n}個までです`, dup: '同じ日の同じお店はすでに選んでいます',
     make: '星座をつくる', makeMore: (n) => `星座をつくる（あと${n}か所）`, empty: 'まだお店を選んでいません', remove: (n) => `${n}を外す`,
+    map: '地図', mapAria: (n) => `${n}を地図で見る`,
+    station: (s, km) => (km <= 1.5 ? `${s} 徒歩${Math.max(1, Math.round((km * 1000) / 80))}分` : `${s}から${km.toFixed(1)}km`),
+    stationName: (ko, ja) => (ja ? (ja.endsWith('駅') ? ja : `${ja}駅`) : `${ko}역`),
     stats: ['星', '線', '直径'], river: '漢江', card: '별로 · わたしのお店の星座', shareText: (n) => `韓国で歩いた道が星座になったよ。「${n}」`,
     cat: { 카페: 'カフェ', 식당: '食事', 술집: '居酒屋', 편의점: 'コンビニ', 문화: '観光', 쇼핑: 'ショッピング', 기타: 'その他' },
   },
@@ -464,7 +478,7 @@ async function search(q) {
         const S = window.kakao.maps.services.Status
         if (status === S.ERROR) return reject(new Error('kakao'))
         resolve(status === S.OK ? data.map((p) => ({
-          id: `k${p.id}`, name: p.place_name, lat: +p.y, lng: +p.x,
+          id: `k${p.id}`, name: p.place_name, lat: +p.y, lng: +p.x, url: p.place_url,
           category: p.category_name || p.category_group_name, address: p.road_address_name || p.address_name,
         })) : [])
       }))
@@ -658,6 +672,30 @@ function thumb(p, size) {
   return el
 }
 
+// 가장 가까운 지하철역 (3km 넘으면 표시 안 함)
+const STATION_PTS = STATIONS.map(([lat, lng, ko, ja]) => ({ lat, lng, ko, ja }))
+function stationText(p) {
+  const n = nearest(p, STATION_PTS)
+  return n && n.km <= 3 ? t().station(t().stationName(n.item.ko, n.item.ja), n.km) : ''
+}
+
+// 지도에서 보기: 한국어는 카카오맵(장소 페이지가 있으면 그것), 일본어는 구글맵
+function mapLink(p) {
+  const a = document.createElement('a')
+  a.className = 'maplink'
+  a.target = '_blank'
+  a.rel = 'noopener'
+  a.href = lang === 'ja'
+    ? `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`
+    : p.url || `https://map.kakao.com/link/map/${encodeURIComponent(p.name)},${p.lat},${p.lng}`
+  a.setAttribute('aria-label', t().mapAria(p.name))
+  a.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>'
+  a.append(t().map)
+  a.addEventListener('click', (e) => e.stopPropagation()) // 행 클릭(가게 추가)과 분리
+  a.addEventListener('pointerdown', (e) => e.stopPropagation())
+  return a
+}
+
 function highlight(name, q) {
   const b = document.createElement('b')
   const word = q.split(/\s+/).find((w) => name.toLowerCase().includes(w.toLowerCase()))
@@ -680,9 +718,10 @@ function renderResults(list, q) {
     const meta = document.createElement('span')
     // 카카오의 세부 분류(예: "곱창,막창")는 한국어 화면에서만 그대로 보여줌
     const cat = lang === 'ko' && p.id.startsWith('k') ? p.category.split(' > ').at(-1) : catLabel(p.category)
-    meta.textContent = [cat, p.address].filter(Boolean).join(' · ')
+    meta.textContent = [cat, stationText(p) || p.address].filter(Boolean).join(' · ')
+    meta.title = p.address ?? ''
     text.append(highlight(p.name, q), meta)
-    li.append(thumb(p, 52), text)
+    li.append(thumb(p, 52), text, mapLink(p))
     li.onclick = () => add(p)
     return li
   }).concat(GOOGLE_KEY ? [Object.assign(document.createElement('li'), { className: 'credit', textContent: 'Photos © Google' })] : []))
@@ -713,9 +752,10 @@ function renderPicked() {
   $('picked').replaceChildren(...visits.map((v, i) => {
     const li = document.createElement('li')
     li.innerHTML = '<div><b></b><time></time></div><button class="x">×</button>'
+    li.querySelector('.x').before(mapLink(v))
     li.prepend(thumb(v, 40))
     const d = new Date(`${v.date}T00:00`)
-    li.querySelector('time').textContent = `${t().day(d.getMonth() + 1, d.getDate(), t().wd[d.getDay()])} · ${catLabel(v.category)}`
+    li.querySelector('time').textContent = [t().day(d.getMonth() + 1, d.getDate(), t().wd[d.getDay()]), stationText(v) || catLabel(v.category)].join(' · ')
     li.querySelector('b').textContent = v.name
     li.querySelector('.x').setAttribute('aria-label', t().remove(v.name))
     li.querySelector('.x').onclick = () => { visits = visits.filter((_, j) => j !== i); save(); renderPicked() }
