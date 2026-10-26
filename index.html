@@ -470,25 +470,30 @@ function kakaoPlaces() {
 
 const useKakao = (q) => KAKAO_KEY && !JA_TEXT.test(q)
 
+async function kakaoSearch(q) {
+  const places = await kakaoPlaces()
+  return new Promise((resolve, reject) => places.keywordSearch(q, (data, status) => {
+    const S = window.kakao.maps.services.Status
+    if (status === S.ERROR) return reject(new Error('kakao'))
+    resolve(status === S.OK ? data.map((p) => ({
+      id: `k${p.id}`, name: p.place_name, lat: +p.y, lng: +p.x, url: p.place_url,
+      category: p.category_name || p.category_group_name, address: p.road_address_name || p.address_name,
+    })) : [])
+  }))
+}
+
 async function search(q) {
+  let kakao = null
   if (useKakao(q)) {
-    try {
-      const places = await kakaoPlaces()
-      return await new Promise((resolve, reject) => places.keywordSearch(q, (data, status) => {
-        const S = window.kakao.maps.services.Status
-        if (status === S.ERROR) return reject(new Error('kakao'))
-        resolve(status === S.OK ? data.map((p) => ({
-          id: `k${p.id}`, name: p.place_name, lat: +p.y, lng: +p.x, url: p.place_url,
-          category: p.category_name || p.category_group_name, address: p.road_address_name || p.address_name,
-        })) : [])
-      }))
-    } catch {
-      // 등록 안 된 도메인(localhost 등)이거나 카카오 장애: 구글 → OSM 순으로 대신 찾음
-    }
+    // 실패(등록 안 된 도메인·장애)하면 null로 두고 구글 → OSM 순으로 대신 찾음
+    kakao = await kakaoSearch(q).catch(() => null)
   }
-  if (GOOGLE_KEY) {
-    try { return await googleSearch(q) } catch { /* 키 제한·할당량 초과: OSM으로 */ }
+  // 카카오 장소 API엔 신규 가게가 늦게 들어와서, 결과가 적으면 구글로 보충 (같은 가게는 150m 안이면 하나로)
+  if (GOOGLE_KEY && (!kakao || kakao.length < 5)) {
+    const google = await googleSearch(q).catch(() => null)
+    if (google) return kakao ? [...kakao, ...google.filter((g) => !kakao.some((k) => distKm(k, g) < 0.15))].slice(0, 10) : google
   }
+  if (kakao) return kakao
   // ponytail: Nominatim은 동네 가게 커버리지가 약하고 초당 1회 제한. 한국어 검색은 카카오 키로 넘어감
   const al = JA_TEXT.test(q) || lang === 'ja' ? 'ja' : 'ko'
   const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kr&accept-language=${al}&limit=10&q=${encodeURIComponent(q)}`
