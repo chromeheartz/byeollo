@@ -324,8 +324,9 @@
 import { analyze, bucket, constellationName, distKm, remarks } from './logic.js'
 import { HANGANG } from './hangang.js'
 
-// 카카오 JS 키(도메인 등록 필요)를 여기에 넣거나 ?kakao=키 로 넘기면 카카오 장소검색을 씀. 없으면 OSM 검색.
-const KAKAO_KEY = new URLSearchParams(location.search).get('kakao') || ''
+// 카카오 JS 키는 .env → config.js 로 들어옴 (node build-config.mjs). ?kakao=키 로 덮어쓸 수 있고, 없으면 OSM 검색
+const config = await import('./config.js').catch(() => ({}))
+const KAKAO_KEY = new URLSearchParams(location.search).get('kakao') || config.KAKAO_KEY || ''
 const MIN = 3, MAX = 20
 const $ = (id) => document.getElementById(id)
 const track = (name, params) => window.gtag?.('event', name, params)

@@ -69,10 +69,21 @@ node logic.test.mjs   # ok 가 나오면 통과
 | 상황 | 검색 |
 |---|---|
 | 카카오 키 없음 | OpenStreetMap 검색. 키 없이 되지만 동네 가게가 잘 안 나오고 분류가 틀릴 때가 있어요 |
-| `?kakao=<JavaScript 키>` | 카카오 장소검색. 분류가 정확하고 작은 가게도 잘 나와요 |
+| 카카오 키 있음 | 카카오 장소검색. 분류가 정확하고 작은 가게도 잘 나와요 |
 | 일본어(가나·한자) 검색어 | 키가 있어도 OpenStreetMap에서 일본어 이름으로 찾아요. 카카오는 한국어 이름만 알아들어요 |
 
 카카오 키는 [Kakao Developers](https://developers.kakao.com) → 내 애플리케이션 → 플랫폼 키 → **JavaScript 키**에서 받고, 같은 화면의 **JavaScript SDK 도메인**에 이 앱을 여는 주소를 등록해야 동작해요. `localhost`는 등록이 안 돼서, 카카오 검색은 배포된 주소에서 확인해요.
+
+키는 저장소에 올리지 않고 `.env`로 관리해요.
+
+```bash
+cp .env.example .env        # KAKAO_JS_KEY= 에 키 입력
+node build-config.mjs       # .env → config.js (git에 안 올라감)
+```
+
+배포할 때는 저장소 **Settings → Secrets and variables → Actions**의 `KAKAO_JS_KEY`를 GitHub Actions가 읽어서 같은 방식으로 `config.js`를 만들어요. 주소 뒤에 `?kakao=<키>`를 붙이면 잠깐 다른 키로 바꿔 볼 수 있어요.
+
+> 카카오 JavaScript 키는 브라우저에서 쓰는 공개용 키라 배포된 페이지에서는 보여요. `.env`는 키를 코드 기록에 남기지 않는 용도이고, 실제 보호는 카카오 콘솔의 도메인 등록이 해요.
 
 화면 언어는 `?lang=ja` / `?lang=ko`로 강제할 수 있어요.
 
@@ -96,6 +107,8 @@ index.html        화면 전체 (마크업 · 스타일 · UI 스크립트)
 logic.js          별자리 계산, 이름 · 멘트 만들기
 logic.test.mjs    logic.js 테스트
 hangang.js        한강 중심선 좌표 (별자리 배경용, OpenStreetMap)
+build-config.mjs  .env → config.js (카카오 키)
+.github/          GitHub Pages 배포 (push 하면 자동)
 icons/            앱 아이콘 (1024 · 512 · 192 · 180 · 32)
 docs/             README 이미지
 ```
