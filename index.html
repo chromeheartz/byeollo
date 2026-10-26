@@ -154,6 +154,9 @@
     transform-origin: top; animation: drop .16s ease-out;
   }
   .results:empty { display: none; }
+  .results { max-height: var(--dd-max, 360px); }
+  /* 모바일 검색 중: 검색창을 화면 위로 올릴 수 있게 아래 여백 */
+  body.searching main { padding-bottom: 75vh; }
   @keyframes drop { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
   .opt {
     display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
@@ -472,6 +475,7 @@ const useKakao = (q) => KAKAO_KEY && !JA_TEXT.test(q)
 
 async function kakaoSearch(q) {
   const places = await kakaoPlaces()
+  // 결과마다 구글 사진 조회가 붙어서 8개로 제한
   return new Promise((resolve, reject) => places.keywordSearch(q, (data, status) => {
     const S = window.kakao.maps.services.Status
     if (status === S.ERROR) return reject(new Error('kakao'))
@@ -479,7 +483,7 @@ async function kakaoSearch(q) {
       id: `k${p.id}`, name: p.place_name, lat: +p.y, lng: +p.x, url: p.place_url,
       category: p.category_name || p.category_group_name, address: p.road_address_name || p.address_name,
     })) : [])
-  }))
+  }, { size: 8 }))
 }
 
 async function search(q) {
@@ -605,6 +609,29 @@ $('q').addEventListener('keydown', (e) => {
   } else if (e.key === 'Escape') closeList()
 })
 document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.search')) closeList() })
+
+// 모바일: 키패드가 올라오면 검색창을 화면 맨 위로 올리고, 결과 목록을 키패드 위 남은 높이에 맞춤
+const touchUI = matchMedia('(max-width: 640px), (pointer: coarse)')
+function fitDropdown() {
+  const vv = window.visualViewport
+  const visibleBottom = vv ? vv.offsetTop + vv.height : innerHeight
+  const room = visibleBottom - $('q').getBoundingClientRect().bottom - 16
+  document.documentElement.style.setProperty('--dd-max', `${Math.round(Math.max(160, Math.min(360, room)))}px`)
+}
+let blurTimer
+$('q').addEventListener('focus', () => {
+  clearTimeout(blurTimer)
+  if (!touchUI.matches) return
+  document.body.classList.add('searching')
+  setTimeout(() => {
+    scrollTo({ top: $('q').getBoundingClientRect().top + scrollY - 12, behavior: 'smooth' })
+    setTimeout(fitDropdown, 400)
+  }, 250) // 키패드가 다 올라온 뒤
+})
+// 결과를 누르는 순간에도 blur가 먼저 나서, 여백을 바로 없애면 화면이 튀어 엉뚱한 곳이 눌림
+$('q').addEventListener('blur', () => { blurTimer = setTimeout(() => document.body.classList.remove('searching'), 400) })
+window.visualViewport?.addEventListener('resize', fitDropdown)
+window.visualViewport?.addEventListener('scroll', fitDropdown)
 
 function syncActive() {
   ;[...$('results').children].forEach((li, i) => li.setAttribute('aria-selected', String(i === active)))
@@ -817,15 +844,27 @@ function project(stars) {
 }
 
 // 한강: 별자리와 같은 투영으로 그려서 어느 동네인지 가늠하게. 별자리가 강에서 멀면 화면 밖이라 안 보임
+const riverLayer = document.createElement('canvas')
+riverLayer.width = W; riverLayer.height = H
+
 function drawRiver(ctx, at, scale, stars, F) {
   const pts = HANGANG.map(([lat, lng]) => at(lat, lng))
   const width = Math.max(10, scale * 0.008) // 실제 강폭 약 0.9km
+  // 따로 그린 뒤 아래쪽(숫자 영역)으로 갈수록 투명하게 덮어서 합침
+  const r = riverLayer.getContext('2d')
+  r.clearRect(0, 0, W, H)
+  r.globalCompositeOperation = 'source-over'
+  r.lineJoin = r.lineCap = 'round'
+  r.beginPath()
+  pts.forEach((p, i) => (i ? r.lineTo(p.x, p.y) : r.moveTo(p.x, p.y)))
+  r.strokeStyle = 'rgba(96, 128, 240, .13)'; r.lineWidth = width; r.stroke()
+  r.strokeStyle = 'rgba(150, 175, 255, .10)'; r.lineWidth = Math.max(2, width * 0.04); r.stroke()
+  const fade = r.createLinearGradient(0, 900, 0, 1000)
+  fade.addColorStop(0, '#000'); fade.addColorStop(1, 'transparent')
+  r.globalCompositeOperation = 'destination-in'
+  r.fillStyle = fade; r.fillRect(0, 0, W, H)
+  ctx.drawImage(riverLayer, 0, 0)
   ctx.save()
-  ctx.lineJoin = ctx.lineCap = 'round'
-  ctx.beginPath()
-  pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)))
-  ctx.strokeStyle = 'rgba(96, 128, 240, .13)'; ctx.lineWidth = width; ctx.stroke()
-  ctx.strokeStyle = 'rgba(150, 175, 255, .10)'; ctx.lineWidth = Math.max(2, width * 0.04); ctx.stroke()
 
   // 이름은 화면 안에 보이는 강 위에서 별과 가장 먼 곳에
   const along = pts.slice(1).flatMap((q, i) => {
