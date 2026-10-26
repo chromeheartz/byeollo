@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>별로 — 내가 간 가게들의 별자리</title>
+<meta name="description" content="지난번에 간 가게 3~20곳을 고르면 나만의 별자리를 만들어 줘요.">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="theme-color" content="#0b1230">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
+<!-- 검증용: GA4 측정 ID 생기면 아래 두 줄 주석 해제 -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXX')</script> -->
+<style>
+  :root {
+    --sky: #0b1230;
+    --sky-2: #141d47;
+    --ink: #e9e6f5;
+    --dim: #8f93b8;
+    --gold: #f4cf6b;
+    --gold-soft: rgba(244, 207, 107, .14);
+    --line: rgba(233, 230, 245, .12);
+    --danger: #ff8a8a;
+    --serif: 'Gowun Batang', serif;
+    --sans: 'IBM Plex Sans KR', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    color: var(--ink);
+    font: 15px/1.6 var(--sans);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #2a2466 0%, transparent 60%),
+      radial-gradient(800px 500px at -10% 110%, #10305a 0%, transparent 60%),
+      var(--sky);
+    background-attachment: fixed;
+  }
+  /* 배경 잔별: 그라디언트 점 두 겹 */
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .5;
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 140px 90px, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 90px 160px, var(--gold) 50%, transparent 51%);
+    background-size: 180px 200px;
+  }
+  main { position: relative; max-width: 540px; margin: 0 auto; padding: 32px 16px 80px; }
+
+  header h1 {
+    font: 700 56px/1 var(--serif); margin: 0; letter-spacing: -.02em;
+    color: var(--gold); text-shadow: 0 0 24px rgba(244, 207, 107, .45);
+  }
+  header h1 small { font: 400 15px var(--serif); color: var(--dim); margin-left: 10px; letter-spacing: 0; text-shadow: none; }
+  header p { margin: 14px 0 0; color: var(--dim); font-size: 15px; }
+  header p b { color: var(--ink); font-weight: 600; }
+
+  .panel {
+    margin-top: 28px; padding: 20px; border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border: 1px solid var(--line);
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
+    backdrop-filter: blur(6px);
+  }
+  .step { font: 600 12px var(--sans); letter-spacing: .14em; color: var(--gold); text-transform: uppercase; }
+  .panel h2 { font: 700 22px/1.3 var(--serif); margin: 4px 0 16px; }
+
+  label { display: block; font-size: 13px; color: var(--dim); margin-bottom: 6px; }
+  input {
+    width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line);
+    background: rgba(5, 9, 30, .6); color: var(--ink); font: inherit; color-scheme: dark;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+
+  .row { display: grid; grid-template-columns: 11.5rem 1fr; gap: 10px; }
+  @media (max-width: 440px) { .row { grid-template-columns: 1fr; } }
+
+  /* 날짜 선택: 버튼 + 달력 팝업 */
+  .dp { position: relative; }
+  .date-btn {
+    width: 100%; display: flex; align-items: center; gap: 10px; padding: 13px 14px; border-radius: 12px;
+    border: 1px solid var(--line); background: rgba(5, 9, 30, .6); color: var(--ink); cursor: pointer;
+    font: 600 15px var(--sans); font-variant-numeric: tabular-nums; text-align: left;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .date-btn svg { flex: none; color: var(--gold); }
+  .date-btn small { color: var(--dim); font-weight: 400; margin-left: auto; }
+  .date-btn:hover { border-color: rgba(244, 207, 107, .5); }
+  .date-btn:focus-visible, .date-btn[aria-expanded="true"] { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+  .cal {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 20; width: 300px; padding: 14px;
+    border-radius: 18px; background: #121a40; border: 1px solid rgba(244, 207, 107, .25);
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .85); transform-origin: top left; animation: drop .16s ease-out;
+  }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cal-head strong { font: 700 17px var(--serif); }
+  .cal-head button {
+    width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line);
+    background: transparent; color: var(--ink); font-size: 18px; cursor: pointer; transition: border-color .12s, color .12s;
+  }
+  .cal-head button:hover:not(:disabled), .cal-head button:focus-visible { outline: none; border-color: var(--gold); color: var(--gold); }
+  .cal-head button:disabled { opacity: .2; cursor: default; }
+  .cal-wd, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+  .cal-wd span { font-size: 11px; color: var(--dim); padding: 4px 0; }
+  .cal-wd span:first-child, .cal-grid .sun { color: #ff9a9a; }
+  .cal-wd span:last-child, .cal-grid .sat { color: #9ab8ff; }
+  .cal-grid button {
+    position: relative; aspect-ratio: 1; border: 0; border-radius: 50%; background: transparent; color: var(--ink);
+    font: 600 14px var(--sans); font-variant-numeric: tabular-nums; cursor: pointer; transition: background .12s;
+  }
+  .cal-grid button:hover:not(:disabled) { background: var(--gold-soft); }
+  .cal-grid button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .cal-grid button.today { box-shadow: inset 0 0 0 1px rgba(244, 207, 107, .6); }
+  .cal-grid button[aria-pressed="true"] {
+    background: linear-gradient(180deg, #ffe39a, var(--gold)); color: #1b1640; box-shadow: 0 6px 16px -4px rgba(244, 207, 107, .7);
+  }
+  .cal-grid button:disabled { color: rgba(233, 230, 245, .18); cursor: default; }
+  .cal-grid button.has::after {
+    content: ''; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px;
+    border-radius: 50%; background: var(--gold);
+  }
+  .cal-grid button[aria-pressed="true"].has::after { background: #1b1640; }
+  .cal-foot {
+    display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--line); font-size: 12px; color: var(--dim);
+  }
+  .cal-foot i { display: inline-block; width: 5px; height: 5px; margin-right: 6px; border-radius: 50%; background: var(--gold); vertical-align: middle; }
+  .cal-foot button { border: 0; background: none; color: var(--gold); font: 600 13px var(--sans); cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+  .cal-foot button:hover, .cal-foot button:focus-visible { outline: none; background: var(--gold-soft); }
+
+  /* 가게 검색 드롭다운 */
+  .search { position: relative; }
+  .search input {
+    padding-left: 42px;
+    background: rgba(5, 9, 30, .6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238f93b8' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 14px center / 18px;
+  }
+  .results {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 10;
+    list-style: none; margin: 0; padding: 6px; max-height: 360px; overflow: auto;
+    background: #121a40; border: 1px solid rgba(244, 207, 107, .25); border-radius: 16px;
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .85);
+    transform-origin: top; animation: drop .16s ease-out;
+  }
+  .results:empty { display: none; }
+  @keyframes drop { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+  .opt {
+    display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center;
+    padding: 8px 10px 8px 8px; border-radius: 12px; cursor: pointer; transition: background .1s;
+  }
+  .opt:hover, .opt[aria-selected="true"] { background: var(--gold-soft); }
+  .opt:active { background: rgba(244, 207, 107, .24); }
+  .opt div { min-width: 0; }
+  .opt b, .opt span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .opt b { font-weight: 600; }
+  .opt mark { background: none; color: var(--gold); }
+  .opt span { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .status { padding: 16px; text-align: center; font-size: 13px; color: var(--dim); }
+  .status.err { color: var(--danger); }
+
+  /* 위치 미니맵 + 카테고리 아이콘 */
+  .thumb { position: relative; flex: none; }
+  .thumb i {
+    position: absolute; inset: 0; border-radius: 12px; background-color: #e8e4dc; background-repeat: no-repeat;
+    filter: invert(.92) hue-rotate(180deg) saturate(.55) brightness(.85); /* 밝은 OSM 타일을 밤하늘 톤으로 */
+  }
+  .thumb::after {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px; border-radius: 50%;
+    background: var(--gold); box-shadow: 0 0 0 3px rgba(244, 207, 107, .3), 0 0 10px var(--gold);
+  }
+  .thumb em {
+    position: absolute; right: -6px; bottom: -6px; width: 24px; height: 24px; display: grid; place-items: center;
+    font-style: normal; font-size: 13px; border-radius: 50%; background: #0b1230; border: 1px solid var(--line);
+  }
+  .hint { font-size: 12px; color: var(--dim); margin: 8px 2px 0; }
+  .hint.err { color: var(--danger); }
+
+  .picked-head { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 0 8px; }
+  .picked-head strong { font: 700 15px var(--serif); }
+  .meter { font: 600 13px var(--sans); color: var(--dim); }
+  .meter b { color: var(--gold); font-size: 20px; }
+  .picked { list-style: none; margin: 0; padding: 0; border-left: 1px dashed rgba(244,207,107,.4); margin-left: 6px; }
+  .picked li {
+    position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
+    padding: 9px 0 9px 20px; animation: pop .35s cubic-bezier(.2,1.4,.4,1);
+  }
+  .picked li div { min-width: 0; }
+  .picked li b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .picked li .thumb em { width: 20px; height: 20px; font-size: 11px; right: -5px; bottom: -5px; }
+  .picked li::before {
+    content: ''; position: absolute; left: -5px; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--gold); box-shadow: 0 0 10px var(--gold);
+  }
+  .picked time { display: block; font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .picked .x { border: 0; background: none; color: var(--dim); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+  .picked .x:hover, .picked .x:focus-visible { color: var(--danger); background: rgba(255,138,138,.1); outline: none; }
+  .empty { color: var(--dim); font-size: 13px; padding: 10px 0 10px 18px; }
+  @keyframes pop { from { opacity: 0; transform: translateX(-8px); } }
+
+  .cta {
+    margin-top: 20px; width: 100%; padding: 16px; border: 0; border-radius: 14px; cursor: pointer;
+    font: 700 17px var(--serif); color: #1b1640;
+    background: linear-gradient(180deg, #ffe39a, var(--gold));
+    box-shadow: 0 10px 30px -8px rgba(244,207,107,.6), inset 0 -2px 0 rgba(0,0,0,.15);
+    transition: transform .12s, box-shadow .12s, opacity .2s;
+  }
+  .cta:hover { transform: translateY(-1px); box-shadow: 0 14px 34px -8px rgba(244,207,107,.75), inset 0 -2px 0 rgba(0,0,0,.15); }
+  .cta:active { transform: translateY(1px); }
+  .cta:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .cta:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
+  .ghost {
+    margin-top: 10px; width: 100%; padding: 13px; border-radius: 14px; cursor: pointer;
+    border: 1px solid var(--line); background: transparent; color: var(--ink); font: 600 14px var(--sans);
+  }
+  .ghost:hover, .ghost:focus-visible { border-color: var(--gold); color: var(--gold); outline: none; }
+
+  canvas { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: 16px; box-shadow: 0 30px 80px -20px #000; }
+  .remarks { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 8px; }
+  .remarks li { padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,.04); border-left: 3px solid var(--gold); font-size: 14px; }
+  .remarks li:first-child { font: 700 17px/1.45 var(--serif); border-left-color: #fff; background: var(--gold-soft); }
+  .name-edit { margin-top: 18px; }
+  [hidden] { display: none !important; }
+  footer { text-align: center; color: var(--dim); font-size: 12px; margin-top: 40px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>별로<small>星路 · 별의 길</small></h1>
+    <p>요즘 어디 다녔나요? 갔던 가게를 <b>3곳부터 20곳까지</b> 고르면 그 길을 별자리로 이어 드려요.</p>
+  </header>
+
+  <section class="panel" id="pick">
+    <div class="step">Step 1</div>
+    <h2>언제, 어디 갔었나요?</h2>
+    <div class="row">
+      <div>
+        <label for="date-btn">날짜</label>
+        <div class="dp">
+          <button type="button" id="date-btn" class="date-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal"></button>
+          <div class="cal" id="cal" role="dialog" aria-label="날짜 선택" hidden>
+            <div class="cal-head">
+              <button type="button" id="cal-prev" aria-label="이전 달">‹</button>
+              <strong id="cal-title" aria-live="polite"></strong>
+              <button type="button" id="cal-next" aria-label="다음 달">›</button>
+            </div>
+            <div class="cal-wd" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+            <div class="cal-grid" id="cal-grid"></div>
+            <div class="cal-foot"><span><i></i>고른 가게가 있는 날</span><button type="button" id="cal-today">오늘로</button></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label for="q">가게 이름</label>
+        <div class="search">
+          <input id="q" type="search" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list"
+            placeholder="예) 성수 카페, 을지로 호프" autocomplete="off">
+          <ul class="results" id="results" role="listbox" aria-label="검색 결과"></ul>
+        </div>
+      </div>
+    </div>
+    <p class="hint" id="hint"></p>
+
+    <div class="picked-head">
+      <strong>내가 지나온 별</strong>
+      <span class="meter"><b id="count">0</b> / 20</span>
+    </div>
+    <ul class="picked" id="picked"></ul>
+    <button class="cta" id="make" disabled>별자리 만들기</button>
+  </section>
+
+  <section class="panel" id="result" hidden>
+    <div class="step">Step 2</div>
+    <h2>당신의 별자리가 떴어요</h2>
+    <canvas id="sky" width="1080" height="1350"></canvas>
+    <div class="name-edit">
+      <label for="cname">별자리 이름 (바꿔도 돼요)</label>
+      <input id="cname" maxlength="14">
+    </div>
+    <ul class="remarks" id="remarks"></ul>
+    <button class="cta" id="share">친구한테 이미지 보내기</button>
+    <button class="ghost" id="back">가게 다시 고르기</button>
+  </section>
+
+  <footer>별로 · 가게 이름은 공유 이미지에 들어가지 않아요</footer>
+</main>
+
+<script type="module">
+import { analyze, bucket, constellationName, remarks } from './logic.js'
+
+// 카카오 JS 키(도메인 등록 필요)를 여기에 넣거나 ?kakao=키 로 넘기면 카카오 장소검색을 씀. 없으면 OSM 검색.
+const KAKAO_KEY = new URLSearchParams(location.search).get('kakao') || ''
+const MIN = 3, MAX = 20
+const $ = (id) => document.getElementById(id)
+const track = (name, params) => window.gtag?.('event', name, params)
+
+let visits = load()
+let result = null
+
+const ymd = (d) => d.toLocaleDateString('sv') // 로컬 기준 YYYY-MM-DD (toISOString은 UTC라 새벽에 하루 밀림)
+const TODAY = ymd(new Date())
+const WD = '일월화수목금토'
+const ICON = { 카페: '☕', 식당: '🍜', 술집: '🍺', 편의점: '🏪', 문화: '🎨', 쇼핑: '🛍️', 기타: '📍' }
+let selDate = TODAY
+
+// ---------- 저장 ----------
+function load() {
+  try { return JSON.parse(localStorage.getItem('byeollo.visits')) ?? [] } catch { return [] }
+}
+function save() {
+  try { localStorage.setItem('byeollo.visits', JSON.stringify(visits)) } catch { /* 사파리 사생활 모드 등: 저장 없이 진행 */ }
+}
+
+// ---------- 장소 검색 ----------
+let kakaoReady = null
+function kakaoPlaces() {
+  kakaoReady ??= new Promise((resolve, reject) => {
+    const s = document.createElement('script')
+    s.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(KAKAO_KEY)}&libraries=services&autoload=false`
+    s.onload = () => window.kakao.maps.load(() => resolve(new window.kakao.maps.services.Places()))
+    s.onerror = () => reject(new Error('카카오 SDK를 불러오지 못했어요'))
+    document.head.append(s)
+  })
+  return kakaoReady
+}
+
+async function search(q) {
+  if (KAKAO_KEY) {
+    const places = await kakaoPlaces()
+    return new Promise((resolve) => places.keywordSearch(q, (data, status) => {
+      resolve(status === window.kakao.maps.services.Status.OK ? data.map((p) => ({
+        id: `k${p.id}`, name: p.place_name, lat: +p.y, lng: +p.x,
+        category: p.category_name || p.category_group_name, address: p.road_address_name || p.address_name,
+      })) : [])
+    }))
+  }
+  // ponytail: Nominatim은 동네 가게 커버리지가 약하고 초당 1회 제한. 실사용 전 카카오 키로 교체
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kr&accept-language=ko&limit=8&q=${encodeURIComponent(q)}`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`검색 실패 (${res.status})`)
+  return (await res.json()).map((r) => ({
+    id: `o${r.place_id}`, name: r.name || r.display_name.split(',')[0], lat: +r.lat, lng: +r.lon,
+    category: `${r.category} ${r.type}`, address: r.display_name.split(',').slice(1, 4).join(','),
+  }))
+}
+
+// ---------- 날짜 선택 달력 ----------
+const view = new Date(`${TODAY}T00:00`)
+view.setDate(1)
+
+function renderDateBtn() {
+  const d = new Date(`${selDate}T00:00`)
+  $('date-btn').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span></span><small></small>'
+  $('date-btn').querySelector('span').textContent = selDate.replaceAll('-', '. ') + '.'
+  $('date-btn').querySelector('small').textContent = selDate === TODAY ? '오늘' : WD[d.getDay()]
+}
+
+function renderCal() {
+  const y = view.getFullYear(), m = view.getMonth()
+  const first = new Date(y, m, 1).getDay(), last = new Date(y, m + 1, 0).getDate()
+  const has = new Set(visits.map((v) => v.date))
+  const cells = Array.from({ length: first }, () => document.createElement('span'))
+  for (let day = 1; day <= last; day++) {
+    const key = ymd(new Date(y, m, day)), wd = (first + day - 1) % 7
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.textContent = day
+    b.className = [wd === 0 && 'sun', wd === 6 && 'sat', key === TODAY && 'today', has.has(key) && 'has'].filter(Boolean).join(' ')
+    b.disabled = key > TODAY
+    b.setAttribute('aria-pressed', String(key === selDate))
+    b.setAttribute('aria-label', `${m + 1}월 ${day}일 ${WD[wd]}요일`)
+    b.onclick = () => { selDate = key; renderDateBtn(); closeCal() }
+    cells.push(b)
+  }
+  $('cal-title').textContent = `${y}년 ${m + 1}월`
+  $('cal-grid').replaceChildren(...cells)
+  $('cal-next').disabled = ymd(new Date(y, m + 1, 1)) > TODAY
+}
+
+function openCal() {
+  const d = new Date(`${selDate}T00:00`)
+  view.setFullYear(d.getFullYear(), d.getMonth(), 1)
+  renderCal()
+  $('cal').hidden = false
+  $('date-btn').setAttribute('aria-expanded', 'true')
+  $('cal-grid').querySelector('[aria-pressed="true"]')?.focus()
+}
+function closeCal(refocus = true) {
+  if ($('cal').hidden) return
+  $('cal').hidden = true
+  $('date-btn').setAttribute('aria-expanded', 'false')
+  if (refocus) $('date-btn').focus()
+}
+const moveMonth = (n) => { view.setMonth(view.getMonth() + n); renderCal() }
+
+$('date-btn').onclick = () => ($('cal').hidden ? openCal() : closeCal())
+$('cal-prev').onclick = () => moveMonth(-1)
+$('cal-next').onclick = () => moveMonth(1)
+$('cal-today').onclick = () => { selDate = TODAY; renderDateBtn(); closeCal() }
+$('cal').addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCal() })
+document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.dp')) closeCal(false) })
+renderDateBtn()
+
+// ---------- 검색 드롭다운 ----------
+let opts = [], active = -1
+
+function openList(nodes) {
+  $('results').replaceChildren(...nodes)
+  $('q').setAttribute('aria-expanded', String(nodes.length > 0))
+}
+function closeList() { opts = []; active = -1; openList([]) }
+function status(text, isErr = false) {
+  opts = []
+  openList([Object.assign(document.createElement('li'), { className: `status${isErr ? ' err' : ''}`, textContent: text })])
+}
+
+let timer, seq = 0
+$('q').addEventListener('input', (e) => {
+  clearTimeout(timer)
+  const q = e.target.value.trim()
+  const my = ++seq
+  if (q.length < 2) { closeList(); return }
+  status('찾는 중…')
+  timer = setTimeout(async () => {
+    try {
+      const list = await search(q)
+      if (my !== seq) return
+      if (list.length) renderResults(list, q)
+      else status('검색 결과가 없어요. 동네 이름을 같이 넣어 보세요.')
+    } catch (err) {
+      if (my === seq) status(err instanceof Error ? err.message : '검색 중 문제가 생겼어요', true)
+    }
+  }, KAKAO_KEY ? 200 : 600) // ponytail: OSM은 초당 1회 제한이라 디바운스를 길게
+})
+
+$('q').addEventListener('keydown', (e) => {
+  if (!opts.length) return
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault()
+    active = (active + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length
+    syncActive()
+  } else if (e.key === 'Enter') {
+    e.preventDefault()
+    add(opts[active])
+  } else if (e.key === 'Escape') closeList()
+})
+document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.search')) closeList() })
+
+function syncActive() {
+  ;[...$('results').children].forEach((li, i) => li.setAttribute('aria-selected', String(i === active)))
+  $(`opt-${active}`)?.scrollIntoView({ block: 'nearest' })
+  $('q').setAttribute('aria-activedescendant', active >= 0 ? `opt-${active}` : '')
+}
+
+function hint(text, isErr = false) {
+  $('hint').textContent = text
+  $('hint').classList.toggle('err', isErr)
+}
+
+// ponytail: OSM 타일은 가벼운 사용만 허용. 트래픽 늘면 카카오 정적지도나 유료 타일로 교체
+function thumb(p, size) {
+  const z = 16, n = 2 ** z, r = (p.lat * Math.PI) / 180
+  const x = ((p.lng + 180) / 360) * n
+  const y = ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n
+  const el = document.createElement('div')
+  el.className = 'thumb'
+  el.style.width = el.style.height = `${size}px`
+  el.innerHTML = '<i></i><em></em>'
+  Object.assign(el.querySelector('i').style, {
+    backgroundImage: `url(https://tile.openstreetmap.org/${z}/${Math.floor(x)}/${Math.floor(y)}.png)`,
+    backgroundPosition: `${size / 2 - (x % 1) * 256}px ${size / 2 - (y % 1) * 256}px`,
+  })
+  el.querySelector('em').textContent = ICON[bucket(p.category)]
+  return el
+}
+
+function highlight(name, q) {
+  const b = document.createElement('b')
+  const word = q.split(/\s+/).find((w) => name.toLowerCase().includes(w.toLowerCase()))
+  if (!word) { b.textContent = name; return b }
+  const i = name.toLowerCase().indexOf(word.toLowerCase())
+  const m = Object.assign(document.createElement('mark'), { textContent: name.slice(i, i + word.length) })
+  b.append(name.slice(0, i), m, name.slice(i + word.length))
+  return b
+}
+
+function renderResults(list, q) {
+  opts = list
+  active = 0
+  openList(list.map((p, i) => {
+    const li = document.createElement('li')
+    li.className = 'opt'
+    li.id = `opt-${i}`
+    li.setAttribute('role', 'option')
+    const text = document.createElement('div')
+    const meta = document.createElement('span')
+    meta.textContent = [KAKAO_KEY ? p.category.split(' > ').at(-1) : bucket(p.category), p.address].filter(Boolean).join(' · ')
+    text.append(highlight(p.name, q), meta)
+    li.append(thumb(p, 52), text)
+    li.onclick = () => add(p)
+    return li
+  }))
+  syncActive()
+}
+
+// ---------- 선택 목록 ----------
+function add(p) {
+  const date = selDate
+  if (!date) return hint('날짜를 먼저 골라 주세요', true)
+  if (visits.length >= MAX) return hint(`별은 ${MAX}개까지만 띄울 수 있어요`, true)
+  if (visits.some((v) => v.id === p.id && v.date === date)) return hint('같은 날 같은 가게는 이미 있어요', true)
+  const { address, ...visit } = p
+  visits = [...visits, { ...visit, date }].sort((a, b) => a.date.localeCompare(b.date))
+  save(); renderPicked()
+  $('q').value = ''; closeList(); hint(''); $('q').focus()
+  track('place_add', { count: visits.length })
+}
+
+function renderPicked() {
+  renderCal()
+  $('count').textContent = visits.length
+  $('make').disabled = visits.length < MIN
+  $('make').textContent = visits.length < MIN ? `별자리 만들기 (${MIN - visits.length}곳 더)` : '별자리 만들기'
+  if (!visits.length) {
+    $('picked').innerHTML = '<li class="empty">아직 고른 가게가 없어요</li>'
+    return
+  }
+  $('picked').replaceChildren(...visits.map((v, i) => {
+    const li = document.createElement('li')
+    li.innerHTML = '<div><b></b><time></time></div><button class="x">×</button>'
+    li.prepend(thumb(v, 40))
+    const d = new Date(`${v.date}T00:00`)
+    li.querySelector('time').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일 · ${bucket(v.category)}`
+    li.querySelector('b').textContent = v.name
+    li.querySelector('.x').setAttribute('aria-label', `${v.name} 빼기`)
+    li.querySelector('.x').onclick = () => { visits = visits.filter((_, j) => j !== i); save(); renderPicked() }
+    return li
+  }))
+}
+
+// ---------- 별자리 그리기 ----------
+const W = 1080, H = 1350
+const BOX = { x: 110, y: 230, w: 860, h: 640 }
+
+function project(stars) {
+  const cos = Math.cos((stars.reduce((s, p) => s + p.lat, 0) / stars.length) * Math.PI / 180)
+  const xs = stars.map((s) => s.lng * cos), ys = stars.map((s) => s.lat)
+  const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
+  const span = Math.max(maxX - minX, (maxY - minY) * BOX.w / BOX.h, 0.002) // 최소 약 200m 폭
+  const scale = BOX.w / span
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2
+  return new Map(stars.map((s) => [s.id, {
+    x: BOX.x + BOX.w / 2 + (s.lng * cos - cx) * scale,
+    y: BOX.y + BOX.h / 2 - (s.lat - cy) * scale,
+  }]))
+}
+
+function rng(seed) { // mulberry32: 같은 별자리면 배경 잔별도 같게
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function sparkle(ctx, x, y, r) {
+  ctx.beginPath()
+  for (let i = 0; i < 8; i++) {
+    const a = (i * Math.PI) / 4 - Math.PI / 2
+    const d = i % 2 ? r * 0.28 : r
+    ctx.lineTo(x + Math.cos(a) * d, y + Math.sin(a) * d)
+  }
+  ctx.closePath(); ctx.fill()
+}
+
+function draw(t) {
+  const { a } = result
+  const name = $('cname').value.trim() || constellationName(a)
+  const ctx = $('sky').getContext('2d')
+  const pos = project(a.stars)
+
+  const bg = ctx.createLinearGradient(0, 0, 0, H)
+  bg.addColorStop(0, '#0a0f2c'); bg.addColorStop(.6, '#151c4a'); bg.addColorStop(1, '#2a1f55')
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H)
+
+  const rand = rng([...a.path.join('')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7))
+  for (let i = 0; i < 180; i++) {
+    ctx.fillStyle = `rgba(255,255,255,${0.15 + rand() * 0.45})`
+    ctx.beginPath(); ctx.arc(rand() * W, rand() * H, rand() * 1.8 + 0.3, 0, Math.PI * 2); ctx.fill()
+  }
+
+  // 선: 방문 순서대로 t 만큼만
+  const segs = a.path.length - 1
+  const drawn = t * segs
+  ctx.strokeStyle = 'rgba(244,207,107,.55)'; ctx.lineWidth = 3; ctx.lineCap = 'round'
+  ctx.shadowColor = 'rgba(244,207,107,.6)'; ctx.shadowBlur = 12
+  ctx.beginPath()
+  for (let i = 0; i < Math.ceil(drawn); i++) {
+    const p = pos.get(a.path[i]), q = pos.get(a.path[i + 1])
+    const k = Math.min(1, drawn - i)
+    ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + (q.x - p.x) * k, p.y + (q.y - p.y) * k)
+  }
+  ctx.stroke()
+
+  // 별: 크기·밝기 = 방문 횟수, 2회 이상은 반짝이
+  ctx.globalAlpha = Math.min(1, t * 3)
+  for (const s of a.stars) {
+    const { x, y } = pos.get(s.id)
+    const r = 9 + Math.min(s.count, 5) * 5
+    ctx.shadowColor = '#f4cf6b'; ctx.shadowBlur = 20 + s.count * 10
+    ctx.fillStyle = s.count >= 2 ? '#fff6d6' : '#f4cf6b'
+    if (s.count >= 2) sparkle(ctx, x, y, r * 1.8)
+    else { ctx.beginPath(); ctx.arc(x, y, r * 0.7, 0, Math.PI * 2); ctx.fill() }
+  }
+  ctx.globalAlpha = 1; ctx.shadowBlur = 0
+
+  // 글자
+  ctx.textAlign = 'left'
+  ctx.fillStyle = '#8f93b8'; ctx.font = '600 30px "IBM Plex Sans KR"'
+  ctx.fillText(`${a.from.replaceAll('-', '.')} — ${a.to.slice(5).replace('-', '.')}`, 90, 120)
+  ctx.fillStyle = '#f4cf6b'; ctx.font = '700 84px "Gowun Batang"'
+  ctx.shadowColor = 'rgba(244,207,107,.5)'; ctx.shadowBlur = 24
+  ctx.fillText(name, 90, 205)
+  ctx.shadowBlur = 0
+
+  const stats = [['별', a.unique], ['선', a.lines], ['지름', `${a.diameter.toFixed(1)}km`]]
+  stats.forEach(([k, v], i) => {
+    const x = 90 + i * 300
+    ctx.fillStyle = '#8f93b8'; ctx.font = '600 28px "IBM Plex Sans KR"'; ctx.fillText(k, x, 1050)
+    ctx.fillStyle = '#e9e6f5'; ctx.font = '700 72px "Gowun Batang"'; ctx.fillText(String(v), x, 1135)
+  })
+  ctx.fillStyle = 'rgba(244,207,107,.25)'; ctx.fillRect(90, 1200, W - 180, 2)
+
+  ctx.textAlign = 'right'; ctx.fillStyle = '#8f93b8'; ctx.font = '600 26px "IBM Plex Sans KR"'
+  ctx.fillText('별로 · 내 가게들의 별자리', W - 90, 1300)
+}
+
+function animate() {
+  const start = performance.now()
+  const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1800
+  const frame = (now) => {
+    const t = dur ? Math.min(1, (now - start) / dur) : 1
+    draw(1 - (1 - t) ** 3)
+    if (t < 1) requestAnimationFrame(frame)
+  }
+  requestAnimationFrame(frame)
+}
+
+$('make').onclick = async () => {
+  const a = analyze(visits)
+  result = { a }
+  $('cname').value = constellationName(a)
+  $('remarks').replaceChildren(...remarks(a).map((t) => {
+    const li = document.createElement('li'); li.textContent = t; return li
+  }))
+  $('pick').hidden = true; $('result').hidden = false
+  scrollTo({ top: 0, behavior: 'smooth' })
+  await Promise.all(['700 84px "Gowun Batang"', '600 30px "IBM Plex Sans KR"', '400 30px "IBM Plex Sans KR"'].map((f) => document.fonts.load(f)))
+  animate()
+  track('constellation_create', { stars: a.unique, visits: a.total })
+}
+
+$('cname').addEventListener('input', () => draw(1))
+$('back').onclick = () => { $('result').hidden = true; $('pick').hidden = false }
+
+$('share').onclick = () => {
+  draw(1)
+  $('sky').toBlob(async (blob) => {
+    const name = $('cname').value.trim() || constellationName(result.a)
+    const file = new File([blob], `byeollo-${name}.png`, { type: 'image/png' })
+    const text = `이번 달 별로였어? 내 별자리는 ${name}`
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], text })
+        track('share', { method: 'native' })
+      } catch { /* 사용자가 공유 시트를 닫음 */ }
+      return
+    }
+    const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: file.name })
+    link.click(); URL.revokeObjectURL(link.href)
+    track('share', { method: 'download' })
+  }, 'image/png')
+}
+
+renderPicked()
+</script>
+</body>
+</html>
