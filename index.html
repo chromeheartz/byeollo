@@ -670,7 +670,7 @@ async function googleSearch(q) {
     const p = {
       id: `g${g.id}`, name: g.displayName, lat: g.location.lat(), lng: g.location.lng(),
       category: `${g.primaryTypeDisplayName ?? ''} ${g.primaryType ?? ''}`, label: g.primaryTypeDisplayName ?? '',
-      address: (g.formattedAddress ?? '').replace(/^(대한민국|韓国|South Korea)[,\s]*/, ''),
+      address: (g.formattedAddress ?? '').replace(/^(대한민국|韓国|South Korea)[,\s]*|[,\s]*(대한민국|韓国|South Korea|KR)$/g, ''),
     }
     photoCache.set(p.id, Promise.resolve(g.photos?.[0]?.getURI({ maxWidth: 160, maxHeight: 160 }) ?? null))
     return p
