@@ -1,126 +1,89 @@
 <div align="center">
 
-<img src="icons/icon-512.png" width="96" alt="별로 아이콘">
+<img src="og.png" alt="별로 — 다녀온 가게들을 이어 만드는 나만의 별자리" width="100%">
+
+<br>
 
 # 별로 星路
 
-**내가 다녀온 가게들을 이어 만드는 나만의 별자리**
+**다녀온 가게들이 밤하늘의 별이 돼요.**
 
-`별로`는 "별의 길(星路)"이라는 뜻이에요. 이번 달 별로였어?
+갔던 가게를 고르면, 그 길을 이어 나만의 별자리를 그려 드려요.<br>
+친구에게 보내면 "너 요즘 어디 다녀?"가 한 장으로 끝나요.
 
-![Vanilla JS](https://img.shields.io/badge/vanilla_JS-no_build-f4cf6b?style=flat-square&labelColor=0b1230)
-![Kakao Local](https://img.shields.io/badge/search-Kakao_Local-ffe39a?style=flat-square&labelColor=0b1230)
-![GitHub Pages](https://img.shields.io/badge/deploy-GitHub_Pages-8f93b8?style=flat-square&labelColor=0b1230)
+<br>
 
-**[▶ 바로 써보기](https://everythingsoso.com)**
+[**✦ 지금 별자리 만들기 →**](https://everythingsoso.com)
 
 </div>
 
----
+<br>
 
-## ✦ 어떤 앱이에요?
+<img src="docs/showcase-ko.jpg" alt="가게 고르기, 검색, 완성된 별자리" width="100%">
 
-최근에 다녀온 가게를 **3곳부터 20곳까지** 고르면, 가게 위치를 밤하늘의 별로 찍고 다녀온 순서대로 선을 이어 별자리를 만들어 줘요. 어디를 자주 가는지, 얼마나 넓게 다니는지가 별자리 모양과 한 줄 멘트로 보이고, 친구에게 이미지로 보낼 수 있어요.
-
-<p align="center">
-  <img src="docs/pick.jpg" width="380" alt="날짜와 가게를 고르는 화면">
-  &nbsp;
-  <img src="docs/constellation.jpg" width="380" alt="완성된 별자리 공유 이미지">
-</p>
-
-| | 기능 |
-|---|---|
-| 📅 **날짜 고르기** | 달력에서 간 날을 골라요. 이미 가게를 고른 날에는 금색 점이 찍혀요 |
-| 🔍 **가게 검색** | 이름을 치면 입력창 밑에 바로 결과가 떠요. 가게 사진(Google Places)과 카테고리 아이콘이 같이 나와요. 사진이 없는 가게는 위치 미니맵을 보여줘요. 가장 가까운 지하철역과 도보 시간, **지도** 버튼(한국어는 카카오맵, 일본어는 구글맵)으로 같은 이름의 지점도 구분돼요 |
-| ✦ **별자리 만들기** | 다녀온 순서대로 선이 그어지는 애니메이션과 함께 별자리가 떠요. 이름은 자동으로 붙고 바꿀 수 있어요 |
-| 💬 **한 줄 멘트** | 가장 자주 간 가게, 별자리 지름, 주말 비율을 짧은 멘트로 알려 줘요 |
-| 🇯🇵 **日本語** | 오른쪽 위 한/日 버튼으로 화면 전체가 일본어로 바뀌어요. 한국에 놀러 온 여행자가 `明洞餃子`, `広蔵市場`처럼 일본어로 검색할 수 있어요. 브라우저가 일본어면 처음부터 일본어로 열려요 |
-| 📤 **공유** | 1080×1350 이미지로 저장하거나 휴대폰 공유 창으로 바로 보내요 |
+<br>
 
 ## ✦ 별자리 읽는 법
 
-| 요소 | 뜻 |
-|---|---|
-| 별 하나 | 가게 하나 (같은 가게는 별 하나로 합쳐요) |
-| 별 크기 · 밝기 | 그 가게에 간 횟수. **2번 이상 간 단골 가게는 반짝이 모양** |
-| 선 | 다녀온 날짜 순서 |
-| 한강 | 별자리에서 4km 안에 한강이 있으면 같이 그려서 어느 동네인지 보여요 |
-| 지름 | 가장 멀리 떨어진 두 별 사이 거리. 얼마나 넓게 다니는지 |
+<table>
+<tr>
+<td width="50%">
 
-공유 이미지에는 **가게 이름이 들어가지 않아요.** 별과 선, 별자리 이름, 지표만 남아요.
+**⭐ 별 하나 = 가게 하나**<br>
+<sub>자주 간 단골 가게일수록 크고 밝게, 두 번 넘게 가면 반짝여요</sub>
 
-## ✦ 로컬에서 실행
+**〰️ 선 = 다녀온 순서**<br>
+<sub>날짜 순서대로 이어서, 내가 걸은 길이 그대로 모양이 돼요</sub>
 
-빌드가 없어요. 파일 서버만 띄우면 돼요.
+</td>
+<td width="50%">
+
+**🌊 한강**<br>
+<sub>근처에 한강이 있으면 같이 그려서 어느 동네인지 보여요</sub>
+
+**🔒 가게 이름은 비밀**<br>
+<sub>공유 이미지엔 별과 선, 별자리 이름만 남아요</sub>
+
+</td>
+</tr>
+</table>
+
+별자리 이름은 다닌 곳에 따라 자동으로 붙어요.<br>
+카페를 자주 가면 `커피향자리`, 주말에만 나들이하면 `주말산책자리`, 딱 세 곳이면 `세모자리`.
+
+<br>
+
+<img src="docs/showcase-ja.jpg" alt="일본어 화면과 일본어 별자리" width="100%">
+
+<br>
+
+<div align="center">
+
+<sub>
+
+**별로**는 "별의 길(星路)"이라는 뜻이에요. 그리고… 이번 달, 별로였어?
+
+<br>
+
+Vanilla JS · Kakao Local · Google Places · OpenStreetMap · GitHub Pages
+
+</sub>
+
+</div>
+
+<details>
+<summary><sub>개발 메모</sub></summary>
 
 ```bash
-python3 -m http.server 8790
-# http://localhost:8790
+cp .env.example .env        # KAKAO_JS_KEY, GOOGLE_MAPS_KEY
+node build-config.mjs       # .env → config.js
+python3 -m http.server 8790 # http://localhost:8790
+node logic.test.mjs         # 별자리 계산 테스트
 ```
 
-분류 로직 테스트:
+- 배포: `main`에 push하면 GitHub Actions가 저장소 Secret의 키로 `config.js`를 만들어 배포해요.
+- 검색: 카카오 → (결과가 적거나 실패하면) 구글 → OpenStreetMap. 일본어 검색어는 구글부터.
+- 키는 각 콘솔에서 `everythingsoso.com` 도메인으로 제한해 두었어요.
+- 지도·역·한강 데이터 © OpenStreetMap contributors (ODbL).
 
-```bash
-node logic.test.mjs   # ok 가 나오면 통과
-```
-
-### 가게 검색 키
-
-| 상황 | 검색 |
-|---|---|
-| 카카오 키 없음 | OpenStreetMap 검색. 키 없이 되지만 동네 가게가 잘 안 나오고 분류가 틀릴 때가 있어요 |
-| 카카오 키 있음 | 카카오 장소검색. 분류가 정확하고 작은 가게도 잘 나와요 |
-| 카카오가 실패하고 구글 키 있음 | 구글 장소검색. 동네 가게도 잘 나오고 사진이 같이 와요 |
-| 일본어(가나·한자) 검색어 | 카카오는 건너뛰고 구글(없으면 OpenStreetMap)에서 일본어 이름으로 찾아요. 카카오는 한국어 이름만 알아들어요 |
-
-카카오 키는 [Kakao Developers](https://developers.kakao.com) → 내 애플리케이션 → 플랫폼 키 → **JavaScript 키**에서 받고, 같은 화면의 **JavaScript SDK 도메인**에 이 앱을 여는 주소(`https://everythingsoso.com`, `https://www.everythingsoso.com`)를 등록해야 동작해요. `localhost`는 등록이 안 돼서, 카카오 검색은 배포된 주소에서 확인해요.
-
-키는 저장소에 올리지 않고 `.env`로 관리해요.
-
-```bash
-cp .env.example .env        # KAKAO_JS_KEY=, GOOGLE_MAPS_KEY= 에 키 입력
-node build-config.mjs       # .env → config.js (git에 안 올라감)
-```
-
-배포할 때는 저장소 **Settings → Secrets and variables → Actions**의 `KAKAO_JS_KEY`, `GOOGLE_MAPS_KEY`를 GitHub Actions가 읽어서 같은 방식으로 `config.js`를 만들어요. 주소 뒤에 `?kakao=<키>`를 붙이면 잠깐 다른 키로 바꿔 볼 수 있어요.
-
-### 가게 사진 키
-
-Google Cloud에서 **Places API (New)**와 **Maps JavaScript API**를 켜고 API 키를 만들어요. 키에는 꼭 제한을 걸어요.
-
-- 애플리케이션 제한: 웹사이트 `https://everythingsoso.com/*`, `https://www.everythingsoso.com/*`, `http://localhost:8790/*`
-- API 제한: 위 두 API만
-- 할당량: Places API (New)의 `SearchTextRequest per day`, `GetPhotoMediaRequest per day`를 낮게 (과금 방지)
-
-키가 없거나 할당량을 넘으면 사진 대신 위치 미니맵이 나와요. 카카오 검색이 실패하면(localhost처럼 등록 안 된 주소) OpenStreetMap 검색으로 넘어가요.
-
-> 카카오 JavaScript 키는 브라우저에서 쓰는 공개용 키라 배포된 페이지에서는 보여요. `.env`는 키를 코드 기록에 남기지 않는 용도이고, 실제 보호는 카카오 콘솔의 도메인 등록이 해요.
-
-화면 언어는 `?lang=ja` / `?lang=ko`로 강제할 수 있어요.
-
-## ✦ 사용량 측정
-
-`index.html` 위쪽의 GA4 주석을 풀고 측정 ID를 넣으면 아래 이벤트가 쌓여요.
-
-| 이벤트 | 언제 |
-|---|---|
-| `place_add` | 가게를 하나 추가할 때 |
-| `constellation_create` | 별자리를 만들 때 (별 수, 방문 수 포함) |
-| `share` | 이미지를 공유하거나 저장할 때 |
-| `lang_change` | 한/日 버튼으로 언어를 바꿀 때 |
-
-모든 이벤트에 `lang`이 같이 붙어서 한국인 / 일본인 사용을 나눠 볼 수 있어요.
-
-## ✦ 구조
-
-```
-index.html        화면 전체 (마크업 · 스타일 · UI 스크립트)
-logic.js          별자리 계산, 이름 · 멘트 만들기
-logic.test.mjs    logic.js 테스트
-hangang.js        한강 중심선 좌표 (별자리 배경용, OpenStreetMap)
-stations.js       수도권 지하철역 좌표와 한·일 이름 (가까운 역 표시용, OpenStreetMap)
-build-config.mjs  .env → config.js (카카오 · 구글 키)
-.github/          GitHub Pages 배포 (push 하면 자동)
-icons/            앱 아이콘 (1024 · 512 · 192 · 180 · 32)
-docs/             README 이미지
-```
+</details>
