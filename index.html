@@ -483,8 +483,11 @@ async function search(q) {
         })) : [])
       }))
     } catch {
-      // 등록 안 된 도메인(localhost 등)이거나 카카오 장애: OSM으로 대신 찾음
+      // 등록 안 된 도메인(localhost 등)이거나 카카오 장애: 구글 → OSM 순으로 대신 찾음
     }
+  }
+  if (GOOGLE_KEY) {
+    try { return await googleSearch(q) } catch { /* 키 제한·할당량 초과: OSM으로 */ }
   }
   // ponytail: Nominatim은 동네 가게 커버리지가 약하고 초당 1회 제한. 한국어 검색은 카카오 키로 넘어감
   const al = JA_TEXT.test(q) || lang === 'ja' ? 'ja' : 'ko'
@@ -582,7 +585,7 @@ $('q').addEventListener('input', (e) => {
     } catch (err) {
       if (my === seq) status(err instanceof Error ? err.message : t().searchErr, true)
     }
-  }, useKakao(q) ? 200 : 600) // ponytail: OSM은 초당 1회 제한이라 디바운스를 길게
+  }, useKakao(q) || GOOGLE_KEY ? 250 : 600) // ponytail: OSM은 초당 1회 제한이라 디바운스를 길게
 })
 
 $('q').addEventListener('keydown', (e) => {
@@ -620,6 +623,26 @@ function googlePlaces() {
     document.head.append(s)
   })
   return googleReady
+}
+
+// 구글 장소 검색: 동네 가게가 OSM보다 훨씬 많고 일본어도 잘 찾음. 결과에 사진이 같이 옴
+async function googleSearch(q) {
+  const { Place } = await googlePlaces()
+  const { places } = await Place.searchByText({
+    textQuery: q,
+    fields: ['id', 'displayName', 'location', 'formattedAddress', 'primaryType', 'primaryTypeDisplayName', 'photos'],
+    language: JA_TEXT.test(q) || lang === 'ja' ? 'ja' : 'ko', region: 'kr', maxResultCount: 8,
+    locationRestriction: { south: 33, west: 124.5, north: 38.7, east: 131 }, // 한국 안만
+  })
+  return places.map((g) => {
+    const p = {
+      id: `g${g.id}`, name: g.displayName, lat: g.location.lat(), lng: g.location.lng(),
+      category: `${g.primaryTypeDisplayName ?? ''} ${g.primaryType ?? ''}`, label: g.primaryTypeDisplayName ?? '',
+      address: (g.formattedAddress ?? '').replace(/^(대한민국|韓国|South Korea)[,\s]*/, ''),
+    }
+    photoCache.set(p.id, Promise.resolve(g.photos?.[0]?.getURI({ maxWidth: 160, maxHeight: 160 }) ?? null))
+    return p
+  })
 }
 
 // 같은 가게는 한 번만 찾음 (검색·선택 목록이 다시 그려질 때 중복 호출 방지)
@@ -717,7 +740,7 @@ function renderResults(list, q) {
     const text = document.createElement('div')
     const meta = document.createElement('span')
     // 카카오의 세부 분류(예: "곱창,막창")는 한국어 화면에서만 그대로 보여줌
-    const cat = lang === 'ko' && p.id.startsWith('k') ? p.category.split(' > ').at(-1) : catLabel(p.category)
+    const cat = p.label || (lang === 'ko' && p.id.startsWith('k') ? p.category.split(' > ').at(-1) : catLabel(p.category))
     meta.textContent = [cat, stationText(p) || p.address].filter(Boolean).join(' · ')
     meta.title = p.address ?? ''
     text.append(highlight(p.name, q), meta)

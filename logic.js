@@ -16,11 +16,11 @@ export function distKm(a, b) {
 // 순서가 중요: 카카오는 "음식점 > 술집 > 호프" 처럼 오므로 술집을 식당보다 먼저 본다
 const BUCKETS = [
   ['술집', /술집|주점|호프|이자카야|와인|칵테일|pub|\bbar\b/i],
-  ['카페', /카페|커피|디저트|베이커리|제과|cafe|bakery|ice_cream/i],
+  ['카페', /카페|커피|디저트|베이커리|제과|cafe|coffee|bakery|ice_cream|dessert|tea_house/i],
   ['편의점', /편의점|convenience/i],
-  ['식당', /음식점|식당|분식|한식|일식|중식|양식|restaurant|fast_food|food_court/i],
+  ['식당', /음식점|식당|분식|한식|일식|중식|양식|restaurant|fast_food|food_court|meal|diner/i],
   ['문화', /문화|전시|공연|영화|서점|관광|공원|고궁|museum|cinema|theatre|attraction|park|books|historic|tourism/i],
-  ['쇼핑', /마트|백화점|쇼핑|의류|시장|mall|supermarket|clothes|department|marketplace|cosmetics/i],
+  ['쇼핑', /마트|백화점|쇼핑|의류|시장|mall|supermarket|clothes|department|marketplace|cosmetics|clothing|store|market/i],
 ]
 
 /** @param {string} category @returns {string} */
