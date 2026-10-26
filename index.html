@@ -321,7 +321,8 @@
 </main>
 
 <script type="module">
-import { analyze, bucket, constellationName, remarks } from './logic.js'
+import { analyze, bucket, constellationName, distKm, remarks } from './logic.js'
+import { HANGANG } from './hangang.js'
 
 // 카카오 JS 키(도메인 등록 필요)를 여기에 넣거나 ?kakao=키 로 넘기면 카카오 장소검색을 씀. 없으면 OSM 검색.
 const KAKAO_KEY = new URLSearchParams(location.search).get('kakao') || ''
@@ -346,7 +347,7 @@ const T = {
     searching: '찾는 중…', none: '검색 결과가 없어요. 동네 이름을 같이 넣어 보세요.', searchErr: '검색 중 문제가 생겼어요',
     max: (n) => `별은 ${n}개까지만 띄울 수 있어요`, dup: '같은 날 같은 가게는 이미 있어요',
     make: '별자리 만들기', makeMore: (n) => `별자리 만들기 (${n}곳 더)`, empty: '아직 고른 가게가 없어요', remove: (n) => `${n} 빼기`,
-    stats: ['별', '선', '지름'], card: '별로 · 내 가게들의 별자리', shareText: (n) => `이번 달 별로였어? 내 별자리는 ${n}`,
+    stats: ['별', '선', '지름'], river: '한강', card: '별로 · 내 가게들의 별자리', shareText: (n) => `이번 달 별로였어? 내 별자리는 ${n}`,
     cat: {},
   },
   ja: {
@@ -363,7 +364,7 @@ const T = {
     searching: '検索中…', none: '見つかりませんでした。地名も一緒に入れてみてください。', searchErr: '検索中に問題が起きました',
     max: (n) => `星は${n}個までです`, dup: '同じ日の同じお店はすでに選んでいます',
     make: '星座をつくる', makeMore: (n) => `星座をつくる（あと${n}か所）`, empty: 'まだお店を選んでいません', remove: (n) => `${n}を外す`,
-    stats: ['星', '線', '直径'], card: '별로 · わたしのお店の星座', shareText: (n) => `韓国で歩いた道が星座になったよ。「${n}」`,
+    stats: ['星', '線', '直径'], river: '漢江', card: '별로 · わたしのお店の星座', shareText: (n) => `韓国で歩いた道が星座になったよ。「${n}」`,
     cat: { 카페: 'カフェ', 식당: '食事', 술집: '居酒屋', 편의점: 'コンビニ', 문화: '観光', 쇼핑: 'ショッピング', 기타: 'その他' },
   },
 }
@@ -668,17 +669,51 @@ function renderPicked() {
 const W = 1080, H = 1350
 const BOX = { x: 110, y: 290, w: 860, h: 600 }
 
+// 한강을 약 100m 간격 점으로 펼침 (가장 가까운 강 지점 찾기용)
+const RIVER_DOTS = HANGANG.slice(1).flatMap(([lat, lng], i) => {
+  const [lat0, lng0] = HANGANG[i], n = Math.ceil(Math.hypot(lat - lat0, lng - lng0) / 0.001)
+  return Array.from({ length: n }, (_, k) => ({ lat: lat0 + ((lat - lat0) * k) / n, lng: lng0 + ((lng - lng0) * k) / n }))
+})
+
 function project(stars) {
-  const cos = Math.cos((stars.reduce((s, p) => s + p.lat, 0) / stars.length) * Math.PI / 180)
-  const xs = stars.map((s) => s.lng * cos), ys = stars.map((s) => s.lat)
+  const c = { lat: stars.reduce((s, p) => s + p.lat, 0) / stars.length, lng: stars.reduce((s, p) => s + p.lng, 0) / stars.length }
+  const cos = Math.cos((c.lat * Math.PI) / 180)
+  // 한강이 4km 안이면 가장 가까운 강 지점까지 화면에 넣어서 어느 동네인지 보이게
+  const river = RIVER_DOTS.reduce((a, b) => (distKm(c, b) < distKm(c, a) ? b : a))
+  const pts = distKm(c, river) < 4 ? [...stars, river] : stars
+  const xs = pts.map((s) => s.lng * cos), ys = pts.map((s) => s.lat)
   const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
   const span = Math.max(maxX - minX, (maxY - minY) * BOX.w / BOX.h, 0.002) // 최소 약 200m 폭
   const scale = BOX.w / span
   const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2
-  return new Map(stars.map((s) => [s.id, {
-    x: BOX.x + BOX.w / 2 + (s.lng * cos - cx) * scale,
-    y: BOX.y + BOX.h / 2 - (s.lat - cy) * scale,
-  }]))
+  const at = (lat, lng) => ({ x: BOX.x + BOX.w / 2 + (lng * cos - cx) * scale, y: BOX.y + BOX.h / 2 - (lat - cy) * scale })
+  return { pos: new Map(stars.map((s) => [s.id, at(s.lat, s.lng)])), at, scale }
+}
+
+// 한강: 별자리와 같은 투영으로 그려서 어느 동네인지 가늠하게. 별자리가 강에서 멀면 화면 밖이라 안 보임
+function drawRiver(ctx, at, scale, stars, F) {
+  const pts = HANGANG.map(([lat, lng]) => at(lat, lng))
+  const width = Math.max(10, scale * 0.008) // 실제 강폭 약 0.9km
+  ctx.save()
+  ctx.lineJoin = ctx.lineCap = 'round'
+  ctx.beginPath()
+  pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)))
+  ctx.strokeStyle = 'rgba(96, 128, 240, .13)'; ctx.lineWidth = width; ctx.stroke()
+  ctx.strokeStyle = 'rgba(150, 175, 255, .10)'; ctx.lineWidth = Math.max(2, width * 0.04); ctx.stroke()
+
+  // 이름은 화면 안에 보이는 강 위에서 별과 가장 먼 곳에
+  const along = pts.slice(1).flatMap((q, i) => {
+    const p = pts[i], n = Math.ceil(Math.hypot(q.x - p.x, q.y - p.y) / 40)
+    return Array.from({ length: n }, (_, k) => ({ x: p.x + ((q.x - p.x) * k) / n, y: p.y + ((q.y - p.y) * k) / n }))
+  })
+  const inView = along.filter((p) => p.x > 120 && p.x < W - 160 && p.y > 300 && p.y < 900)
+  const far = (p) => Math.min(...stars.map((s) => Math.hypot(s.x - p.x, s.y - p.y)))
+  const spot = inView.sort((a, b) => far(b) - far(a))[0]
+  if (spot) {
+    ctx.fillStyle = 'rgba(170, 190, 255, .5)'; ctx.font = `italic 400 30px ${F.serif}`; ctx.textAlign = 'center'
+    ctx.fillText(t().river, spot.x, spot.y + 10)
+  }
+  ctx.restore()
 }
 
 function rng(seed) { // mulberry32: 같은 별자리면 배경 잔별도 같게
@@ -705,7 +740,7 @@ function draw(progress) {
   const F = FONTS[lang]
   const name = $('cname').value.trim() || constellationName(a, lang)
   const ctx = $('sky').getContext('2d')
-  const pos = project(a.stars)
+  const { pos, at, scale } = project(a.stars)
 
   const bg = ctx.createLinearGradient(0, 0, 0, H)
   bg.addColorStop(0, '#0a0f2c'); bg.addColorStop(.6, '#151c4a'); bg.addColorStop(1, '#2a1f55')
@@ -716,6 +751,8 @@ function draw(progress) {
     ctx.fillStyle = `rgba(255,255,255,${0.15 + rand() * 0.45})`
     ctx.beginPath(); ctx.arc(rand() * W, rand() * H, rand() * 1.8 + 0.3, 0, Math.PI * 2); ctx.fill()
   }
+
+  drawRiver(ctx, at, scale, [...pos.values()], F)
 
   // 선: 방문 순서대로 progress 만큼만
   const segs = a.path.length - 1
