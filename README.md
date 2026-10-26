@@ -12,7 +12,7 @@
 ![Kakao Local](https://img.shields.io/badge/search-Kakao_Local-ffe39a?style=flat-square&labelColor=0b1230)
 ![GitHub Pages](https://img.shields.io/badge/deploy-GitHub_Pages-8f93b8?style=flat-square&labelColor=0b1230)
 
-**[▶ 바로 써보기](https://chromeheartz.github.io/byeollo/)**
+**[▶ 바로 써보기](https://everythingsoso.com)**
 
 </div>
 
@@ -73,7 +73,7 @@ node logic.test.mjs   # ok 가 나오면 통과
 | 카카오가 실패하고 구글 키 있음 | 구글 장소검색. 동네 가게도 잘 나오고 사진이 같이 와요 |
 | 일본어(가나·한자) 검색어 | 카카오는 건너뛰고 구글(없으면 OpenStreetMap)에서 일본어 이름으로 찾아요. 카카오는 한국어 이름만 알아들어요 |
 
-카카오 키는 [Kakao Developers](https://developers.kakao.com) → 내 애플리케이션 → 플랫폼 키 → **JavaScript 키**에서 받고, 같은 화면의 **JavaScript SDK 도메인**에 이 앱을 여는 주소를 등록해야 동작해요. `localhost`는 등록이 안 돼서, 카카오 검색은 배포된 주소에서 확인해요.
+카카오 키는 [Kakao Developers](https://developers.kakao.com) → 내 애플리케이션 → 플랫폼 키 → **JavaScript 키**에서 받고, 같은 화면의 **JavaScript SDK 도메인**에 이 앱을 여는 주소(`https://everythingsoso.com`, `https://www.everythingsoso.com`)를 등록해야 동작해요. `localhost`는 등록이 안 돼서, 카카오 검색은 배포된 주소에서 확인해요.
 
 키는 저장소에 올리지 않고 `.env`로 관리해요.
 
@@ -88,7 +88,7 @@ node build-config.mjs       # .env → config.js (git에 안 올라감)
 
 Google Cloud에서 **Places API (New)**와 **Maps JavaScript API**를 켜고 API 키를 만들어요. 키에는 꼭 제한을 걸어요.
 
-- 애플리케이션 제한: 웹사이트 `https://chromeheartz.github.io/*`, `http://localhost:8790/*`
+- 애플리케이션 제한: 웹사이트 `https://everythingsoso.com/*`, `https://www.everythingsoso.com/*`, `http://localhost:8790/*`
 - API 제한: 위 두 API만
 - 할당량: Places API (New)의 `SearchTextRequest per day`, `GetPhotoMediaRequest per day`를 낮게 (과금 방지)
 
