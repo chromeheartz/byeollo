@@ -233,69 +233,91 @@
   .name-edit { margin-top: 18px; }
   [hidden] { display: none !important; }
   footer { text-align: center; color: var(--dim); font-size: 12px; margin-top: 40px; }
+
+  /* 언어 전환 */
+  header { position: relative; }
+  .lang {
+    position: absolute; top: 4px; right: 0; display: flex; padding: 3px; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(5, 9, 30, .55);
+  }
+  .lang button {
+    width: 36px; height: 30px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+    color: var(--dim); font: 700 14px 'Gowun Batang', serif; transition: background .15s, color .15s;
+  }
+  .lang button:hover { color: var(--ink); }
+  .lang button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .lang button[aria-pressed="true"] { background: var(--gold); color: #1b1640; box-shadow: 0 4px 14px -4px rgba(244, 207, 107, .7); }
+  /* 일본어: 가나가 있는 글꼴을 앞에, 한글은 원래 글꼴로 */
+  :root[lang="ja"] {
+    --serif: 'Zen Old Mincho', 'Gowun Batang', serif;
+    --sans: 'IBM Plex Sans JP', 'IBM Plex Sans KR', system-ui, sans-serif;
+  }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>별로<small>星路 · 별의 길</small></h1>
-    <p>요즘 어디 다녔나요? 갔던 가게를 <b>3곳부터 20곳까지</b> 고르면 그 길을 별자리로 이어 드려요.</p>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="ko" lang="ko">한</button><button type="button" data-lang="ja" lang="ja">日</button>
+    </div>
+    <h1>별로<small data-t="sub"></small></h1>
+    <p data-t-html="lead"></p>
   </header>
 
   <section class="panel" id="pick">
     <div class="step">Step 1</div>
-    <h2>언제, 어디 갔었나요?</h2>
+    <h2 data-t="step1"></h2>
     <div class="row">
       <div>
-        <label for="date-btn">날짜</label>
+        <label for="date-btn" data-t="date"></label>
         <div class="dp">
           <button type="button" id="date-btn" class="date-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal"></button>
-          <div class="cal" id="cal" role="dialog" aria-label="날짜 선택" hidden>
+          <div class="cal" id="cal" role="dialog" data-t-aria="calLabel" hidden>
             <div class="cal-head">
-              <button type="button" id="cal-prev" aria-label="이전 달">‹</button>
+              <button type="button" id="cal-prev" data-t-aria="prev">‹</button>
               <strong id="cal-title" aria-live="polite"></strong>
-              <button type="button" id="cal-next" aria-label="다음 달">›</button>
+              <button type="button" id="cal-next" data-t-aria="next">›</button>
             </div>
-            <div class="cal-wd" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+            <div class="cal-wd" id="cal-wd" aria-hidden="true"></div>
             <div class="cal-grid" id="cal-grid"></div>
-            <div class="cal-foot"><span><i></i>고른 가게가 있는 날</span><button type="button" id="cal-today">오늘로</button></div>
+            <div class="cal-foot"><span><i></i><span data-t="legend"></span></span><button type="button" id="cal-today" data-t="toToday"></button></div>
           </div>
         </div>
       </div>
       <div>
-        <label for="q">가게 이름</label>
+        <label for="q" data-t="store"></label>
         <div class="search">
           <input id="q" type="search" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list"
-            placeholder="예) 성수 카페, 을지로 호프" autocomplete="off">
-          <ul class="results" id="results" role="listbox" aria-label="검색 결과"></ul>
+            data-t-ph="ph" autocomplete="off">
+          <ul class="results" id="results" role="listbox" data-t-aria="results"></ul>
         </div>
       </div>
     </div>
     <p class="hint" id="hint"></p>
 
     <div class="picked-head">
-      <strong>내가 지나온 별</strong>
+      <strong data-t="picked"></strong>
       <span class="meter"><b id="count">0</b> / 20</span>
     </div>
     <ul class="picked" id="picked"></ul>
-    <button class="cta" id="make" disabled>별자리 만들기</button>
+    <button class="cta" id="make" disabled></button>
   </section>
 
   <section class="panel" id="result" hidden>
     <div class="step">Step 2</div>
-    <h2>당신의 별자리가 떴어요</h2>
+    <h2 data-t="step2"></h2>
     <canvas id="sky" width="1080" height="1350"></canvas>
     <div class="name-edit">
-      <label for="cname">별자리 이름 (바꿔도 돼요)</label>
+      <label for="cname" data-t="cname"></label>
       <input id="cname" maxlength="14">
     </div>
     <ul class="remarks" id="remarks"></ul>
-    <button class="cta" id="share">친구한테 이미지 보내기</button>
-    <button class="ghost" id="back">가게 다시 고르기</button>
+    <button class="cta" id="share" data-t="share"></button>
+    <button class="ghost" id="back" data-t="back"></button>
   </section>
 
-  <footer>별로 · 가게 이름은 공유 이미지에 들어가지 않아요</footer>
+  <footer data-t="footer"></footer>
 </main>
 
 <script type="module">
@@ -306,13 +328,64 @@ const KAKAO_KEY = new URLSearchParams(location.search).get('kakao') || ''
 const MIN = 3, MAX = 20
 const $ = (id) => document.getElementById(id)
 const track = (name, params) => window.gtag?.('event', name, params)
+const pad = (n) => String(n).padStart(2, '0')
+
+// ---------- 문구 (한국어 / 일본어) ----------
+const T = {
+  ko: {
+    sub: '星路 · 별의 길',
+    lead: '요즘 어디 다녔나요? 갔던 가게를 <b>3곳부터 20곳까지</b> 고르면 그 길을 별자리로 이어 드려요.',
+    step1: '언제, 어디 갔었나요?', date: '날짜', store: '가게 이름', ph: '예) 성수 카페, 을지로 호프',
+    picked: '내가 지나온 별', step2: '당신의 별자리가 떴어요', cname: '별자리 이름 (바꿔도 돼요)',
+    share: '친구한테 이미지 보내기', back: '가게 다시 고르기', footer: '별로 · 가게 이름은 공유 이미지에 들어가지 않아요',
+    calLabel: '날짜 선택', prev: '이전 달', next: '다음 달', legend: '고른 가게가 있는 날', toToday: '오늘로', results: '검색 결과',
+    wd: '일월화수목금토', today: '오늘',
+    calTitle: (y, m) => `${y}년 ${m}월`,
+    dateBtn: (y, m, d) => `${y}. ${pad(m)}. ${pad(d)}.`,
+    day: (m, d, w) => `${m}월 ${d}일 ${w}요일`,
+    searching: '찾는 중…', none: '검색 결과가 없어요. 동네 이름을 같이 넣어 보세요.', searchErr: '검색 중 문제가 생겼어요',
+    max: (n) => `별은 ${n}개까지만 띄울 수 있어요`, dup: '같은 날 같은 가게는 이미 있어요',
+    make: '별자리 만들기', makeMore: (n) => `별자리 만들기 (${n}곳 더)`, empty: '아직 고른 가게가 없어요', remove: (n) => `${n} 빼기`,
+    stats: ['별', '선', '지름'], card: '별로 · 내 가게들의 별자리', shareText: (n) => `이번 달 별로였어? 내 별자리는 ${n}`,
+    cat: {},
+  },
+  ja: {
+    sub: '星路 · ほしのみち',
+    lead: '韓国で立ち寄ったお店を<b>3〜20か所</b>選ぶと、その道のりを星座にしてつなぎます。',
+    step1: 'いつ、どこへ行きましたか？', date: '日付', store: 'お店の名前', ph: '例）明洞 カフェ、広蔵市場',
+    picked: 'わたしがたどった星', step2: 'あなたの星座が浮かびました', cname: '星座の名前（変更できます）',
+    share: '友だちに画像を送る', back: 'お店を選び直す', footer: '별로 · 共有画像にお店の名前は入りません',
+    calLabel: '日付を選ぶ', prev: '前の月', next: '次の月', legend: 'お店を選んだ日', toToday: '今日', results: '検索結果',
+    wd: '日月火水木金土', today: '今日',
+    calTitle: (y, m) => `${y}年${m}月`,
+    dateBtn: (y, m, d) => `${y}/${pad(m)}/${pad(d)}`,
+    day: (m, d, w) => `${m}月${d}日（${w}）`,
+    searching: '検索中…', none: '見つかりませんでした。地名も一緒に入れてみてください。', searchErr: '検索中に問題が起きました',
+    max: (n) => `星は${n}個までです`, dup: '同じ日の同じお店はすでに選んでいます',
+    make: '星座をつくる', makeMore: (n) => `星座をつくる（あと${n}か所）`, empty: 'まだお店を選んでいません', remove: (n) => `${n}を外す`,
+    stats: ['星', '線', '直径'], card: '별로 · わたしのお店の星座', shareText: (n) => `韓国で歩いた道が星座になったよ。「${n}」`,
+    cat: { 카페: 'カフェ', 식당: '食事', 술집: '居酒屋', 편의점: 'コンビニ', 문화: '観光', 쇼핑: 'ショッピング', 기타: 'その他' },
+  },
+}
+const FONTS = {
+  ko: { serif: '"Gowun Batang"', sans: '"IBM Plex Sans KR"' },
+  ja: { serif: '"Zen Old Mincho", "Gowun Batang"', sans: '"IBM Plex Sans JP", "IBM Plex Sans KR"' },
+}
+const pick = () => {
+  const q = new URLSearchParams(location.search).get('lang')
+  if (q === 'ja' || q === 'ko') return q
+  try { const s = localStorage.getItem('byeollo.lang'); if (s === 'ja' || s === 'ko') return s } catch { /* 저장소 막힘 */ }
+  return navigator.language?.startsWith('ja') ? 'ja' : 'ko'
+}
+let lang = pick()
+const t = () => T[lang]
+const catLabel = (category) => t().cat[bucket(category)] ?? bucket(category)
 
 let visits = load()
 let result = null
 
 const ymd = (d) => d.toLocaleDateString('sv') // 로컬 기준 YYYY-MM-DD (toISOString은 UTC라 새벽에 하루 밀림)
 const TODAY = ymd(new Date())
-const WD = '일월화수목금토'
 const ICON = { 카페: '☕', 식당: '🍜', 술집: '🍺', 편의점: '🏪', 문화: '🎨', 쇼핑: '🛍️', 기타: '📍' }
 let selDate = TODAY
 
@@ -324,21 +397,60 @@ function save() {
   try { localStorage.setItem('byeollo.visits', JSON.stringify(visits)) } catch { /* 사파리 사생활 모드 등: 저장 없이 진행 */ }
 }
 
+// ---------- 언어 전환 ----------
+let jaFontsLoaded = false
+function applyLang() {
+  document.documentElement.lang = lang
+  if (lang === 'ja' && !jaFontsLoaded) {
+    jaFontsLoaded = true
+    document.head.append(Object.assign(document.createElement('link'), {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700&family=IBM+Plex+Sans+JP:wght@400;600&display=swap',
+    }))
+  }
+  document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t()[el.dataset.t] })
+  document.querySelectorAll('[data-t-html]').forEach((el) => { el.innerHTML = t()[el.dataset.tHtml] })
+  document.querySelectorAll('[data-t-ph]').forEach((el) => { el.placeholder = t()[el.dataset.tPh] })
+  document.querySelectorAll('[data-t-aria]').forEach((el) => el.setAttribute('aria-label', t()[el.dataset.tAria]))
+  document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)))
+  $('cal-wd').replaceChildren(...[...t().wd].map((w) => Object.assign(document.createElement('span'), { textContent: w })))
+  renderDateBtn()
+  renderPicked()
+  if (!$('cal').hidden) renderCal()
+  if (result) showResult()
+}
+document.querySelectorAll('[data-lang]').forEach((b) => {
+  b.onclick = () => {
+    if (b.dataset.lang === lang) return
+    lang = b.dataset.lang
+    try { localStorage.setItem('byeollo.lang', lang) } catch { /* 저장 없이 진행 */ }
+    applyLang()
+    track('lang_change', { lang })
+  }
+})
+
 // ---------- 장소 검색 ----------
+// 가나·한자가 들어간 검색어는 일본어로 보고 OSM에서 찾음 (카카오는 한국어 이름만 알아들음)
+const JA_TEXT = /[぀-ヿ一-鿿]/
+// 가게가 아닌 OSM 결과(정류장·역·행정구역 등)는 뺌
+const NOT_PLACE = new Set(['highway', 'railway', 'boundary', 'place', 'landuse', 'waterway', 'natural', 'public_transport'])
+
 let kakaoReady = null
 function kakaoPlaces() {
   kakaoReady ??= new Promise((resolve, reject) => {
     const s = document.createElement('script')
     s.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(KAKAO_KEY)}&libraries=services&autoload=false`
     s.onload = () => window.kakao.maps.load(() => resolve(new window.kakao.maps.services.Places()))
-    s.onerror = () => reject(new Error('카카오 SDK를 불러오지 못했어요'))
+    s.onerror = () => reject(new Error(t().searchErr))
     document.head.append(s)
   })
   return kakaoReady
 }
 
+const useKakao = (q) => KAKAO_KEY && !JA_TEXT.test(q)
+
 async function search(q) {
-  if (KAKAO_KEY) {
+  if (useKakao(q)) {
     const places = await kakaoPlaces()
     return new Promise((resolve) => places.keywordSearch(q, (data, status) => {
       resolve(status === window.kakao.maps.services.Status.OK ? data.map((p) => ({
@@ -347,11 +459,12 @@ async function search(q) {
       })) : [])
     }))
   }
-  // ponytail: Nominatim은 동네 가게 커버리지가 약하고 초당 1회 제한. 실사용 전 카카오 키로 교체
-  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kr&accept-language=ko&limit=8&q=${encodeURIComponent(q)}`
+  // ponytail: Nominatim은 동네 가게 커버리지가 약하고 초당 1회 제한. 한국어 검색은 카카오 키로 넘어감
+  const al = JA_TEXT.test(q) || lang === 'ja' ? 'ja' : 'ko'
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=kr&accept-language=${al}&limit=10&q=${encodeURIComponent(q)}`
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`검색 실패 (${res.status})`)
-  return (await res.json()).map((r) => ({
+  if (!res.ok) throw new Error(`${t().searchErr} (${res.status})`)
+  return (await res.json()).filter((r) => !NOT_PLACE.has(r.category)).slice(0, 8).map((r) => ({
     id: `o${r.place_id}`, name: r.name || r.display_name.split(',')[0], lat: +r.lat, lng: +r.lon,
     category: `${r.category} ${r.type}`, address: r.display_name.split(',').slice(1, 4).join(','),
   }))
@@ -364,8 +477,8 @@ view.setDate(1)
 function renderDateBtn() {
   const d = new Date(`${selDate}T00:00`)
   $('date-btn').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span></span><small></small>'
-  $('date-btn').querySelector('span').textContent = selDate.replaceAll('-', '. ') + '.'
-  $('date-btn').querySelector('small').textContent = selDate === TODAY ? '오늘' : WD[d.getDay()]
+  $('date-btn').querySelector('span').textContent = t().dateBtn(d.getFullYear(), d.getMonth() + 1, d.getDate())
+  $('date-btn').querySelector('small').textContent = selDate === TODAY ? t().today : t().wd[d.getDay()]
 }
 
 function renderCal() {
@@ -381,11 +494,11 @@ function renderCal() {
     b.className = [wd === 0 && 'sun', wd === 6 && 'sat', key === TODAY && 'today', has.has(key) && 'has'].filter(Boolean).join(' ')
     b.disabled = key > TODAY
     b.setAttribute('aria-pressed', String(key === selDate))
-    b.setAttribute('aria-label', `${m + 1}월 ${day}일 ${WD[wd]}요일`)
+    b.setAttribute('aria-label', t().day(m + 1, day, t().wd[wd]))
     b.onclick = () => { selDate = key; renderDateBtn(); closeCal() }
     cells.push(b)
   }
-  $('cal-title').textContent = `${y}년 ${m + 1}월`
+  $('cal-title').textContent = t().calTitle(y, m + 1)
   $('cal-grid').replaceChildren(...cells)
   $('cal-next').disabled = ymd(new Date(y, m + 1, 1)) > TODAY
 }
@@ -412,7 +525,6 @@ $('cal-next').onclick = () => moveMonth(1)
 $('cal-today').onclick = () => { selDate = TODAY; renderDateBtn(); closeCal() }
 $('cal').addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCal() })
 document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.dp')) closeCal(false) })
-renderDateBtn()
 
 // ---------- 검색 드롭다운 ----------
 let opts = [], active = -1
@@ -433,21 +545,21 @@ $('q').addEventListener('input', (e) => {
   const q = e.target.value.trim()
   const my = ++seq
   if (q.length < 2) { closeList(); return }
-  status('찾는 중…')
+  status(t().searching)
   timer = setTimeout(async () => {
     try {
       const list = await search(q)
       if (my !== seq) return
       if (list.length) renderResults(list, q)
-      else status('검색 결과가 없어요. 동네 이름을 같이 넣어 보세요.')
+      else status(t().none)
     } catch (err) {
-      if (my === seq) status(err instanceof Error ? err.message : '검색 중 문제가 생겼어요', true)
+      if (my === seq) status(err instanceof Error ? err.message : t().searchErr, true)
     }
-  }, KAKAO_KEY ? 200 : 600) // ponytail: OSM은 초당 1회 제한이라 디바운스를 길게
+  }, useKakao(q) ? 200 : 600) // ponytail: OSM은 초당 1회 제한이라 디바운스를 길게
 })
 
 $('q').addEventListener('keydown', (e) => {
-  if (!opts.length) return
+  if (e.isComposing || !opts.length) return // 일본어·한국어 입력기 조합 중 Enter는 무시
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault()
     active = (active + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length
@@ -507,7 +619,9 @@ function renderResults(list, q) {
     li.setAttribute('role', 'option')
     const text = document.createElement('div')
     const meta = document.createElement('span')
-    meta.textContent = [KAKAO_KEY ? p.category.split(' > ').at(-1) : bucket(p.category), p.address].filter(Boolean).join(' · ')
+    // 카카오의 세부 분류(예: "곱창,막창")는 한국어 화면에서만 그대로 보여줌
+    const cat = lang === 'ko' && p.id.startsWith('k') ? p.category.split(' > ').at(-1) : catLabel(p.category)
+    meta.textContent = [cat, p.address].filter(Boolean).join(' · ')
     text.append(highlight(p.name, q), meta)
     li.append(thumb(p, 52), text)
     li.onclick = () => add(p)
@@ -519,23 +633,22 @@ function renderResults(list, q) {
 // ---------- 선택 목록 ----------
 function add(p) {
   const date = selDate
-  if (!date) return hint('날짜를 먼저 골라 주세요', true)
-  if (visits.length >= MAX) return hint(`별은 ${MAX}개까지만 띄울 수 있어요`, true)
-  if (visits.some((v) => v.id === p.id && v.date === date)) return hint('같은 날 같은 가게는 이미 있어요', true)
+  if (visits.length >= MAX) return hint(t().max(MAX), true)
+  if (visits.some((v) => v.id === p.id && v.date === date)) return hint(t().dup, true)
   const { address, ...visit } = p
   visits = [...visits, { ...visit, date }].sort((a, b) => a.date.localeCompare(b.date))
   save(); renderPicked()
   $('q').value = ''; closeList(); hint(''); $('q').focus()
-  track('place_add', { count: visits.length })
+  track('place_add', { count: visits.length, lang })
 }
 
 function renderPicked() {
   renderCal()
   $('count').textContent = visits.length
   $('make').disabled = visits.length < MIN
-  $('make').textContent = visits.length < MIN ? `별자리 만들기 (${MIN - visits.length}곳 더)` : '별자리 만들기'
+  $('make').textContent = visits.length < MIN ? t().makeMore(MIN - visits.length) : t().make
   if (!visits.length) {
-    $('picked').innerHTML = '<li class="empty">아직 고른 가게가 없어요</li>'
+    $('picked').replaceChildren(Object.assign(document.createElement('li'), { className: 'empty', textContent: t().empty }))
     return
   }
   $('picked').replaceChildren(...visits.map((v, i) => {
@@ -543,9 +656,9 @@ function renderPicked() {
     li.innerHTML = '<div><b></b><time></time></div><button class="x">×</button>'
     li.prepend(thumb(v, 40))
     const d = new Date(`${v.date}T00:00`)
-    li.querySelector('time').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일 · ${bucket(v.category)}`
+    li.querySelector('time').textContent = `${t().day(d.getMonth() + 1, d.getDate(), t().wd[d.getDay()])} · ${catLabel(v.category)}`
     li.querySelector('b').textContent = v.name
-    li.querySelector('.x').setAttribute('aria-label', `${v.name} 빼기`)
+    li.querySelector('.x').setAttribute('aria-label', t().remove(v.name))
     li.querySelector('.x').onclick = () => { visits = visits.filter((_, j) => j !== i); save(); renderPicked() }
     return li
   }))
@@ -553,7 +666,7 @@ function renderPicked() {
 
 // ---------- 별자리 그리기 ----------
 const W = 1080, H = 1350
-const BOX = { x: 110, y: 230, w: 860, h: 640 }
+const BOX = { x: 110, y: 290, w: 860, h: 600 }
 
 function project(stars) {
   const cos = Math.cos((stars.reduce((s, p) => s + p.lat, 0) / stars.length) * Math.PI / 180)
@@ -587,9 +700,10 @@ function sparkle(ctx, x, y, r) {
   ctx.closePath(); ctx.fill()
 }
 
-function draw(t) {
+function draw(progress) {
   const { a } = result
-  const name = $('cname').value.trim() || constellationName(a)
+  const F = FONTS[lang]
+  const name = $('cname').value.trim() || constellationName(a, lang)
   const ctx = $('sky').getContext('2d')
   const pos = project(a.stars)
 
@@ -603,9 +717,9 @@ function draw(t) {
     ctx.beginPath(); ctx.arc(rand() * W, rand() * H, rand() * 1.8 + 0.3, 0, Math.PI * 2); ctx.fill()
   }
 
-  // 선: 방문 순서대로 t 만큼만
+  // 선: 방문 순서대로 progress 만큼만
   const segs = a.path.length - 1
-  const drawn = t * segs
+  const drawn = progress * segs
   ctx.strokeStyle = 'rgba(244,207,107,.55)'; ctx.lineWidth = 3; ctx.lineCap = 'round'
   ctx.shadowColor = 'rgba(244,207,107,.6)'; ctx.shadowBlur = 12
   ctx.beginPath()
@@ -617,7 +731,7 @@ function draw(t) {
   ctx.stroke()
 
   // 별: 크기·밝기 = 방문 횟수, 2회 이상은 반짝이
-  ctx.globalAlpha = Math.min(1, t * 3)
+  ctx.globalAlpha = Math.min(1, progress * 3)
   for (const s of a.stars) {
     const { x, y } = pos.get(s.id)
     const r = 9 + Math.min(s.count, 5) * 5
@@ -630,73 +744,84 @@ function draw(t) {
 
   // 글자
   ctx.textAlign = 'left'
-  ctx.fillStyle = '#8f93b8'; ctx.font = '600 30px "IBM Plex Sans KR"'
+  ctx.fillStyle = '#8f93b8'; ctx.font = `600 30px ${F.sans}`
   ctx.fillText(`${a.from.replaceAll('-', '.')} — ${a.to.slice(5).replace('-', '.')}`, 90, 120)
-  ctx.fillStyle = '#f4cf6b'; ctx.font = '700 84px "Gowun Batang"'
+  ctx.fillStyle = '#f4cf6b'; ctx.font = `700 84px ${F.serif}`
   ctx.shadowColor = 'rgba(244,207,107,.5)'; ctx.shadowBlur = 24
   ctx.fillText(name, 90, 205)
   ctx.shadowBlur = 0
 
-  const stats = [['별', a.unique], ['선', a.lines], ['지름', `${a.diameter.toFixed(1)}km`]]
-  stats.forEach(([k, v], i) => {
+  const values = [a.unique, a.lines, `${a.diameter.toFixed(1)}km`]
+  t().stats.forEach((k, i) => {
     const x = 90 + i * 300
-    ctx.fillStyle = '#8f93b8'; ctx.font = '600 28px "IBM Plex Sans KR"'; ctx.fillText(k, x, 1050)
-    ctx.fillStyle = '#e9e6f5'; ctx.font = '700 72px "Gowun Batang"'; ctx.fillText(String(v), x, 1135)
+    ctx.fillStyle = '#8f93b8'; ctx.font = `600 28px ${F.sans}`; ctx.fillText(k, x, 1050)
+    ctx.fillStyle = '#e9e6f5'; ctx.font = `700 72px ${F.serif}`; ctx.fillText(String(values[i]), x, 1135)
   })
   ctx.fillStyle = 'rgba(244,207,107,.25)'; ctx.fillRect(90, 1200, W - 180, 2)
 
-  ctx.textAlign = 'right'; ctx.fillStyle = '#8f93b8'; ctx.font = '600 26px "IBM Plex Sans KR"'
-  ctx.fillText('별로 · 내 가게들의 별자리', W - 90, 1300)
+  ctx.textAlign = 'right'; ctx.fillStyle = '#8f93b8'; ctx.font = `600 26px ${F.sans}`
+  ctx.fillText(t().card, W - 90, 1300)
 }
 
 function animate() {
   const start = performance.now()
   const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1800
   const frame = (now) => {
-    const t = dur ? Math.min(1, (now - start) / dur) : 1
-    draw(1 - (1 - t) ** 3)
-    if (t < 1) requestAnimationFrame(frame)
+    const k = dur ? Math.min(1, (now - start) / dur) : 1
+    draw(1 - (1 - k) ** 3)
+    if (k < 1) requestAnimationFrame(frame)
   }
   requestAnimationFrame(frame)
 }
 
-$('make').onclick = async () => {
+// 캔버스는 글꼴이 다 받아진 뒤에 그려야 기본 글꼴로 안 나옴
+const fontsReady = () => Promise.all(
+  [`700 84px ${FONTS[lang].serif}`, `600 30px ${FONTS[lang].sans}`].map((f) => document.fonts.load(f, t().card + t().step2)),
+)
+
+async function showResult(anim = false) {
+  const { a } = result
+  $('cname').value = constellationName(a, lang)
+  $('remarks').replaceChildren(...remarks(a, lang).map((line) => {
+    const li = document.createElement('li'); li.textContent = line; return li
+  }))
+  await fontsReady()
+  if (anim) animate()
+  else draw(1)
+}
+
+$('make').onclick = () => {
   const a = analyze(visits)
   result = { a }
-  $('cname').value = constellationName(a)
-  $('remarks').replaceChildren(...remarks(a).map((t) => {
-    const li = document.createElement('li'); li.textContent = t; return li
-  }))
   $('pick').hidden = true; $('result').hidden = false
   scrollTo({ top: 0, behavior: 'smooth' })
-  await Promise.all(['700 84px "Gowun Batang"', '600 30px "IBM Plex Sans KR"', '400 30px "IBM Plex Sans KR"'].map((f) => document.fonts.load(f)))
-  animate()
-  track('constellation_create', { stars: a.unique, visits: a.total })
+  showResult(true)
+  track('constellation_create', { stars: a.unique, visits: a.total, lang })
 }
 
 $('cname').addEventListener('input', () => draw(1))
-$('back').onclick = () => { $('result').hidden = true; $('pick').hidden = false }
+$('back').onclick = () => { $('result').hidden = true; $('pick').hidden = false; result = null }
 
 $('share').onclick = () => {
   draw(1)
   $('sky').toBlob(async (blob) => {
-    const name = $('cname').value.trim() || constellationName(result.a)
+    const name = $('cname').value.trim() || constellationName(result.a, lang)
     const file = new File([blob], `byeollo-${name}.png`, { type: 'image/png' })
-    const text = `이번 달 별로였어? 내 별자리는 ${name}`
+    const text = t().shareText(name)
     if (navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({ files: [file], text })
-        track('share', { method: 'native' })
+        track('share', { method: 'native', lang })
       } catch { /* 사용자가 공유 시트를 닫음 */ }
       return
     }
     const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: file.name })
     link.click(); URL.revokeObjectURL(link.href)
-    track('share', { method: 'download' })
+    track('share', { method: 'download', lang })
   }, 'image/png')
 }
 
-renderPicked()
+applyLang()
 </script>
 </body>
 </html>

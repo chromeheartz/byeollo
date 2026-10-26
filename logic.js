@@ -19,8 +19,8 @@ const BUCKETS = [
   ['카페', /카페|커피|디저트|베이커리|제과|cafe|bakery|ice_cream/i],
   ['편의점', /편의점|convenience/i],
   ['식당', /음식점|식당|분식|한식|일식|중식|양식|restaurant|fast_food|food_court/i],
-  ['문화', /문화|전시|공연|영화|서점|관광|공원|museum|cinema|theatre|attraction|park|books/i],
-  ['쇼핑', /마트|백화점|쇼핑|의류|mall|supermarket|clothes|department/i],
+  ['문화', /문화|전시|공연|영화|서점|관광|공원|고궁|museum|cinema|theatre|attraction|park|books|historic|tourism/i],
+  ['쇼핑', /마트|백화점|쇼핑|의류|시장|mall|supermarket|clothes|department|marketplace|cosmetics/i],
 ]
 
 /** @param {string} category @returns {string} */
@@ -69,21 +69,35 @@ export function analyze(visits) {
   }
 }
 
-const PREFIX = { 카페: '커피향', 식당: '한끼', 술집: '심야안주', 편의점: '편의점', 문화: '산책', 쇼핑: '장바구니', 기타: '떠돌이' }
+/** @typedef {'ko' | 'ja'} Lang */
 
-/** @returns {string} 자동 제안 별자리 이름 */
-export function constellationName(a) {
-  if (a.unique === 3) return '세모자리'
-  return `${a.weekend >= 0.6 ? '주말' : ''}${PREFIX[a.dominant]}자리`
+const NAMES = {
+  ko: { 카페: '커피향', 식당: '한끼', 술집: '심야안주', 편의점: '편의점', 문화: '산책', 쇼핑: '장바구니', 기타: '떠돌이' },
+  ja: { 카페: '珈琲', 식당: 'ごはん', 술집: '夜酒', 편의점: 'コンビニ', 문화: 'おさんぽ', 쇼핑: 'お買いもの', 기타: 'さすらい' },
 }
 
-/** @returns {string[]} 결과 화면 멘트 */
-export function remarks(a) {
+/** @param {Lang} lang @returns {string} 자동 제안 별자리 이름 */
+export function constellationName(a, lang = 'ko') {
+  if (lang === 'ja') return a.unique === 3 ? '三角座' : `${a.weekend >= 0.6 ? '週末' : ''}${NAMES.ja[a.dominant]}座`
+  return a.unique === 3 ? '세모자리' : `${a.weekend >= 0.6 ? '주말' : ''}${NAMES.ko[a.dominant]}자리`
+}
+
+/** @param {Lang} lang @returns {string[]} 결과 화면 멘트 */
+export function remarks(a, lang = 'ko') {
   const b = a.brightest
-  const reach = a.diameter < 1 ? '동네 밖은 위험해' : a.diameter < 5 ? '딱 마실 나가는 반경' : '이 정도면 거의 여행자'
+  const km = a.diameter.toFixed(1)
+  const pct = Math.round(a.weekend * 100)
+  const tier = a.diameter < 1 ? 0 : a.diameter < 5 ? 1 : 2
+  if (lang === 'ja') {
+    return [
+      b.count >= 2 ? `いちばん明るい星は${b.name}。${b.count}回も立ち寄りました` : `${a.unique}か所すべて一度ずつ。まだリピートはありません`,
+      `星座の直径は${km}km、${['ご近所だけで完結', 'ちょうどお散歩の範囲', 'もはや旅人の距離'][tier]}`,
+      `${pct}%の星が週末に輝きました`,
+    ]
+  }
   return [
     b.count >= 2 ? `가장 밝은 별은 ${b.name}. ${b.count}번이나 들렀어요` : `${a.unique}곳 모두 딱 한 번씩. 재방문은 아직 없어요`,
-    `별자리 지름 ${a.diameter.toFixed(1)}km, ${reach}`,
-    `${Math.round(a.weekend * 100)}%의 별이 주말에 떴어요`,
+    `별자리 지름 ${km}km, ${['동네 밖은 위험해', '딱 마실 나가는 반경', '이 정도면 거의 여행자'][tier]}`,
+    `${pct}%의 별이 주말에 떴어요`,
   ]
 }
