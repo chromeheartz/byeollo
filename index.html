@@ -390,6 +390,7 @@ const track = (name, params) => window.gtag?.('event', name, params)
 const pad = (n) => String(n).padStart(2, '0')
 
 // ---------- 문구 (한국어 / 일본어) ----------
+const SITE = 'everythingsoso.com'
 const T = {
   ko: {
     sub: '星路 · 별의 길',
@@ -409,7 +410,7 @@ const T = {
     done: '완료', close: '검색 닫기', added: (name, n) => `✦ ${name} 담았어요 · ${n}/20`,
     station: (s, km) => (km <= 1.5 ? `${s} 도보 ${Math.max(1, Math.round((km * 1000) / 80))}분` : `${s}에서 ${km.toFixed(1)}km`),
     stationName: (ko) => (ko.endsWith('역') ? ko : `${ko}역`),
-    stats: ['별', '선', '지름'], river: '한강', card: '별로 · 내 가게들의 별자리', shareText: (n) => `이번 달 별로였어? 내 별자리는 ${n}`,
+    stats: ['별', '선', '지름'], river: '한강', card: '별로 · 내 가게들의 별자리', shareText: (n, stars) => `이번 달 내가 지나온 별 ${stars}개,\n「${n}」 ✦\n너는 무슨 자리야? ${SITE}`,
     cat: {},
   },
   ja: {
@@ -430,7 +431,7 @@ const T = {
     done: '完了', close: '検索を閉じる', added: (name, n) => `✦ ${name}を追加しました · ${n}/20`,
     station: (s, km) => (km <= 1.5 ? `${s} 徒歩${Math.max(1, Math.round((km * 1000) / 80))}分` : `${s}から${km.toFixed(1)}km`),
     stationName: (ko, ja) => (ja ? (ja.endsWith('駅') ? ja : `${ja}駅`) : `${ko}역`),
-    stats: ['星', '線', '直径'], river: '漢江', card: '별로 · わたしのお店の星座', shareText: (n) => `韓国で歩いた道が星座になったよ。「${n}」`,
+    stats: ['星', '線', '直径'], river: '漢江', card: '별로 · わたしのお店の星座', shareText: (n, stars) => `韓国でたどった星${stars}個、\n「${n}」 ✦\nあなたは何座？ ${SITE}`,
     cat: { 카페: 'カフェ', 식당: '食事', 술집: '居酒屋', 편의점: 'コンビニ', 문화: '観光', 쇼핑: 'ショッピング', 기타: 'その他' },
   },
 }
@@ -1065,7 +1066,7 @@ $('share').onclick = () => {
   $('sky').toBlob(async (blob) => {
     const name = $('cname').value.trim() || constellationName(result.a, lang)
     const file = new File([blob], `byeollo-${name}.png`, { type: 'image/png' })
-    const text = t().shareText(name)
+    const text = t().shareText(name, result.a.unique)
     if (navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({ files: [file], text })
