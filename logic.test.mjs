@@ -49,7 +49,15 @@ assert.equal(bucket('文化的ランドマーク cultural_landmark'), '문화')
 assert.equal(bucket('ベーグル専門店 bagel_shop'), '카페')
 assert.equal(bucket('点心店 dumpling_restaurant'), '식당')
 assert.equal(bucket('マーケット market'), '쇼핑')
-assert.equal(constellationName(fresh, 'ja'), 'ごはん座')
+assert.ok(['食べ歩き座', '腹ペコ座', 'グルメ座'].includes(constellationName(fresh, 'ja')))
+assert.equal(constellationName(wide), '세모자리')
+const far = analyze([
+  v('여의도', 37.5244, 126.9231, '카페', '2026-10-01'), v('성수', 37.5446, 127.0557, '카페', '2026-10-02'),
+  v('잠실', 37.5133, 127.1001, '카페', '2026-10-03'), v('홍대', 37.5563, 126.9236, '카페', '2026-10-05'),
+])
+assert.equal(constellationName(far), '역마살자리')
+const regular2 = analyze([...Array(4)].map((_, i) => v('바사', 37.5244, 126.9231, '카페', `2026-10-0${i + 1}`)).concat(v('호프', 37.521, 126.926, '술집', '2026-10-09')))
+assert.equal(constellationName(regular2), '고인물자리')
 assert.match(remarks(regular, 'ja')[0], /4回|3回/)
 const near = nearest({ lat: 37.5446, lng: 127.0557 }, [{ lat: 37.5446, lng: 127.0560, n: '성수' }, { lat: 37.5563, lng: 126.9236, n: '홍대' }])
 assert.equal(near.item.n, '성수')

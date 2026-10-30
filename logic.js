@@ -84,15 +84,47 @@ export function nearest(p, items) {
 
 /** @typedef {'ko' | 'ja'} Lang */
 
+// 가장 많이 간 종류별 이름 후보. 같은 가게 목록이면 늘 같은 이름이 나오게 가게 id로 하나 고름
 const NAMES = {
-  ko: { 카페: '커피향', 식당: '한끼', 술집: '심야안주', 편의점: '편의점', 문화: '산책', 쇼핑: '장바구니', 기타: '떠돌이' },
-  ja: { 카페: '珈琲', 식당: 'ごはん', 술집: '夜酒', 편의점: 'コンビニ', 문화: 'おさんぽ', 쇼핑: 'お買いもの', 기타: 'さすらい' },
+  ko: {
+    카페: ['얼죽아', '카공', '카페인수혈', '디저트배따로'],
+    식당: ['먹짱', '맛집도장깨기', '웨이팅장인', '한입만'],
+    술집: ['2차가', '짠', '해장필수', '불금'],
+    편의점: ['편털', '신상털이', '1+1'],
+    문화: ['갬성산책', '전시덕후', '사진맛집'],
+    쇼핑: ['텅장', '지름신', '장바구니'],
+    기타: ['정체불명', '자유영혼'],
+  },
+  ja: {
+    카페: ['カフェ巡り', '喫茶', '甘党'],
+    식당: ['食べ歩き', '腹ペコ', 'グルメ'],
+    술집: ['はしご酒', '二次会', '乾杯'],
+    편의점: ['コンビニ飯', '新作ハンター'],
+    문화: ['映え', '観光', 'おさんぽ'],
+    쇼핑: ['爆買い', '散財'],
+    기타: ['迷子', '気まぐれ'],
+  },
 }
+
+// 다닌 모양이 뚜렷하면 종류보다 먼저 붙는 이름 (위에서부터 먼저 맞는 것)
+const SHAPES = [
+  [(a) => a.unique === 3, { ko: '세모', ja: '三角' }],
+  [(a) => a.revisit >= 0.5, { ko: '고인물', ja: '常連' }],
+  [(a) => a.diameter < 0.8, { ko: '슬세권', ja: 'ご近所' }],
+  [(a) => a.diameter > 15, { ko: '역마살', ja: '遠征' }],
+  [(a) => a.unique >= 5 && a.shares[a.dominant] < 0.35, { ko: '극P', ja: '気まぐれ' }],
+  [(a) => a.weekend >= 0.7, { ko: '주말한정', ja: '週末限定' }],
+  [(a) => a.unique >= 5 && a.weekend === 0, { ko: '퇴근길', ja: '仕事帰り' }],
+]
 
 /** @param {Lang} lang @returns {string} 자동 제안 별자리 이름 */
 export function constellationName(a, lang = 'ko') {
-  if (lang === 'ja') return a.unique === 3 ? '三角座' : `${a.weekend >= 0.6 ? '週末' : ''}${NAMES.ja[a.dominant]}座`
-  return a.unique === 3 ? '세모자리' : `${a.weekend >= 0.6 ? '주말' : ''}${NAMES.ko[a.dominant]}자리`
+  const suffix = lang === 'ja' ? '座' : '자리'
+  const shape = SHAPES.find(([test]) => test(a))
+  if (shape) return shape[1][lang] + suffix
+  const list = NAMES[lang][a.dominant]
+  const seed = a.path.join('').split('').reduce((s, c) => s + c.charCodeAt(0), 0)
+  return list[seed % list.length] + suffix
 }
 
 /** @param {Lang} lang @returns {string[]} 결과 화면 멘트 */
