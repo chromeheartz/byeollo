@@ -278,6 +278,14 @@
   .remarks li { padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,.04); border-left: 3px solid var(--gold); font-size: 14px; }
   .remarks li:first-child { font: 700 17px/1.45 var(--serif); border-left-color: #fff; background: var(--gold-soft); }
   .name-edit { margin-top: 18px; }
+  .saveimg {
+    position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    padding: 24px max(20px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+    background: rgba(5, 9, 30, .94); animation: fade .16s ease-out;
+  }
+  .saveimg img { max-width: 100%; max-height: 70dvh; width: auto; height: auto; border-radius: 16px; -webkit-touch-callout: default; }
+  .saveimg p { margin: 0; text-align: center; font: 600 15px var(--sans); color: var(--gold); }
+  .saveimg .ghost { width: auto; padding: 12px 28px; }
   [hidden] { display: none !important; }
   footer { text-align: center; color: var(--dim); font-size: 12px; margin-top: 40px; }
 
@@ -374,6 +382,11 @@
 
   <footer data-t="footer"></footer>
 </main>
+<div class="saveimg" id="saveimg" role="dialog" aria-modal="true" hidden>
+  <img id="saveimg-img" alt="" width="1080" height="1350">
+  <p data-t="saveHint"></p>
+  <button type="button" class="ghost" id="saveimg-close" data-t="closeImg"></button>
+</div>
 
 <script type="module">
 import { analyze, bucket, constellationName, distKm, nearest, remarks } from './logic.js'
@@ -407,7 +420,7 @@ const T = {
     max: (n) => `별은 ${n}개까지만 띄울 수 있어요`, dup: '같은 날 같은 가게는 이미 있어요',
     make: '별자리 만들기', makeMore: (n) => `별자리 만들기 (${n}곳 더)`, empty: '아직 고른 가게가 없어요', remove: (n) => `${n} 빼기`,
     map: '지도', mapAria: (n) => `${n} 지도에서 보기`,
-    done: '완료', close: '검색 닫기', added: (name, n) => `✦ ${name} 담았어요 · ${n}/20`,
+    done: '완료', close: '검색 닫기', saveHint: '이미지를 길게 눌러 저장한 뒤 친구에게 보내 주세요', closeImg: '닫기', added: (name, n) => `✦ ${name} 담았어요 · ${n}/20`,
     station: (s, km) => (km <= 1.5 ? `${s} 도보 ${Math.max(1, Math.round((km * 1000) / 80))}분` : `${s}에서 ${km.toFixed(1)}km`),
     stationName: (ko) => (ko.endsWith('역') ? ko : `${ko}역`),
     stats: ['별', '선', '지름'], river: '한강', card: '별로 · 내 가게들의 별자리', shareText: (n, stars) => `이번 달 내가 지나온 별 ${stars}개,\n「${n}」 ✦\n너는 무슨 자리야? ${SITE}`,
@@ -428,7 +441,7 @@ const T = {
     max: (n) => `星は${n}個までです`, dup: '同じ日の同じお店はすでに選んでいます',
     make: '星座をつくる', makeMore: (n) => `星座をつくる（あと${n}か所）`, empty: 'まだお店を選んでいません', remove: (n) => `${n}を外す`,
     map: '地図', mapAria: (n) => `${n}を地図で見る`,
-    done: '完了', close: '検索を閉じる', added: (name, n) => `✦ ${name}を追加しました · ${n}/20`,
+    done: '完了', close: '検索を閉じる', saveHint: '画像を長押しして保存し、友だちに送ってください', closeImg: '閉じる', added: (name, n) => `✦ ${name}を追加しました · ${n}/20`,
     station: (s, km) => (km <= 1.5 ? `${s} 徒歩${Math.max(1, Math.round((km * 1000) / 80))}分` : `${s}から${km.toFixed(1)}km`),
     stationName: (ko, ja) => (ja ? (ja.endsWith('駅') ? ja : `${ja}駅`) : `${ko}역`),
     stats: ['星', '線', '直径'], river: '漢江', card: '별로 · わたしのお店の星座', shareText: (n, stars) => `韓国でたどった星${stars}個、\n「${n}」 ✦\nあなたは何座？ ${SITE}`,
@@ -1061,24 +1074,40 @@ $('make').onclick = () => {
 $('cname').addEventListener('input', () => draw(1))
 $('back').onclick = () => { $('result').hidden = true; $('pick').hidden = false; result = null }
 
-$('share').onclick = () => {
-  draw(1)
-  $('sky').toBlob(async (blob) => {
-    const name = $('cname').value.trim() || constellationName(result.a, lang)
-    const file = new File([blob], `byeollo-${name}.png`, { type: 'image/png' })
-    const text = t().shareText(name, result.a.unique)
-    if (navigator.canShare?.({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], text })
-        track('share', { method: 'native', lang })
-      } catch { /* 사용자가 공유 시트를 닫음 */ }
-      return
-    }
-    const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: file.name })
-    link.click(); URL.revokeObjectURL(link.href)
-    track('share', { method: 'download', lang })
-  }, 'image/png')
+// 카톡·라인 인앱 브라우저는 파일 공유·다운로드를 막아서, 들어오자마자 기본 브라우저로 넘김
+const UA = navigator.userAgent
+if (/KAKAOTALK/i.test(UA)) location.href = `kakaotalk://web/openExternal?url=${encodeURIComponent(location.href)}`
+else if (/ Line\//.test(UA) && !location.search.includes('openExternalBrowser')) {
+  const u = new URL(location.href); u.searchParams.set('openExternalBrowser', '1'); location.replace(u)
 }
+
+$('share').onclick = async () => {
+  draw(1)
+  // toBlob(비동기)을 기다리면 iOS 사파리가 '사용자가 누른 동작'이 아니라며 공유를 막음 → 동기 toDataURL로 바로 만듦
+  const url = $('sky').toDataURL('image/png')
+  const bytes = Uint8Array.from(atob(url.split(',')[1]), (c) => c.charCodeAt(0))
+  const name = $('cname').value.trim() || constellationName(result.a, lang)
+  const file = new File([bytes], `byeollo-${name}.png`, { type: 'image/png' })
+  const text = t().shareText(name, result.a.unique)
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], text })
+      track('share', { method: 'native', lang })
+      return
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return // 사용자가 공유 시트를 닫음
+    }
+  }
+  if (touchUI.matches) { // 휴대폰인데 공유를 못 하면: 이미지를 띄워서 길게 눌러 저장
+    $('saveimg-img').src = url
+    $('saveimg').hidden = false
+    track('share', { method: 'longpress', lang })
+    return
+  }
+  Object.assign(document.createElement('a'), { href: url, download: file.name }).click()
+  track('share', { method: 'download', lang })
+}
+$('saveimg-close').onclick = () => { $('saveimg').hidden = true }
 
 applyLang()
 </script>
