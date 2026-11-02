@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jua&text=%EB%B3%84%EB%A1%9C&display=swap" rel="stylesheet"><!-- 로고 "별로" 두 글자만 받음 -->
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet"><!-- 로고·별자리 카드 이름/숫자. 글자 범위별로 나뉘어 쓰는 글자 조각만 받음 -->
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
 <!-- 검증용: GA4 측정 ID 생기면 아래 두 줄 주석 해제 -->
 <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXX"></script>
@@ -450,8 +450,8 @@ const T = {
   },
 }
 const FONTS = {
-  ko: { serif: '"Gowun Dodum"', sans: '"IBM Plex Sans KR"' },
-  ja: { serif: '"Zen Maru Gothic", "Gowun Dodum"', sans: '"IBM Plex Sans JP", "IBM Plex Sans KR"' },
+  ko: { serif: '"Gowun Dodum"', sans: '"IBM Plex Sans KR"', cute: '"Jua"' },
+  ja: { serif: '"Zen Maru Gothic", "Gowun Dodum"', sans: '"IBM Plex Sans JP", "IBM Plex Sans KR"', cute: '"Zen Maru Gothic", "Jua"' }, // 주아는 가나·한자가 없음
 }
 const pick = () => {
   const q = new URLSearchParams(location.search).get('lang')
@@ -1017,22 +1017,23 @@ function draw(progress) {
 
   // 글자
   ctx.textAlign = 'left'
-  ctx.fillStyle = '#a7abcf'; ctx.font = `600 30px ${F.sans}`
+  ctx.fillStyle = '#a7abcf'; ctx.font = `400 30px ${F.serif}`
   ctx.fillText(`${a.from.replaceAll('-', '.')} — ${a.to.slice(5).replace('-', '.')}`, 90, 120)
-  ctx.fillStyle = '#f6da8f'; ctx.font = `400 84px ${F.serif}`
+  ctx.fillStyle = '#f6da8f'; ctx.font = `400 92px ${F.cute}`
   ctx.shadowColor = 'rgba(246, 218, 143,.5)'; ctx.shadowBlur = 24
   ctx.fillText(name, 90, 205)
   ctx.shadowBlur = 0
 
   const values = [a.unique, a.lines, `${a.diameter.toFixed(1)}km`]
+  ctx.textAlign = 'center' // 세 칸 각각 가운데: 숫자 위, 이름 아래
   t().stats.forEach((k, i) => {
-    const x = 90 + i * 300
-    ctx.fillStyle = '#a7abcf'; ctx.font = `600 28px ${F.sans}`; ctx.fillText(k, x, 1050)
-    ctx.fillStyle = '#f1eff9'; ctx.font = `400 72px ${F.serif}`; ctx.fillText(String(values[i]), x, 1135)
+    const x = 240 + i * 300
+    ctx.fillStyle = '#f1eff9'; ctx.font = `400 80px "Jua", ${F.cute}`; ctx.fillText(String(values[i]), x, 1095)
+    ctx.fillStyle = '#a7abcf'; ctx.font = `400 30px ${F.serif}`; ctx.fillText(k, x, 1145)
   })
   ctx.fillStyle = 'rgba(246, 218, 143,.25)'; ctx.fillRect(90, 1200, W - 180, 2)
 
-  ctx.textAlign = 'right'; ctx.fillStyle = '#a7abcf'; ctx.font = `600 26px ${F.sans}`
+  ctx.textAlign = 'right'; ctx.fillStyle = '#a7abcf'; ctx.font = `400 28px ${F.serif}`
   ctx.fillText(t().card, W - 90, 1300)
 }
 
@@ -1049,7 +1050,8 @@ function animate() {
 
 // 캔버스는 글꼴이 다 받아진 뒤에 그려야 기본 글꼴로 안 나옴
 const fontsReady = () => Promise.all(
-  [`400 84px ${FONTS[lang].serif}`, `600 30px ${FONTS[lang].sans}`].map((f) => document.fonts.load(f, t().card + t().step2)),
+  [`400 30px ${FONTS[lang].serif}`, `400 92px ${FONTS[lang].cute}`, '400 80px "Jua"']
+    .map((f) => document.fonts.load(f, t().card + t().stats.join('') + $('cname').value + '0123456789.km')),
 )
 
 async function showResult(anim = false) {
@@ -1072,7 +1074,7 @@ $('make').onclick = () => {
   track('constellation_create', { stars: a.unique, visits: a.total, lang })
 }
 
-$('cname').addEventListener('input', () => draw(1))
+$('cname').addEventListener('input', () => { draw(1); fontsReady().then(() => draw(1)) }) // 새로 친 글자의 주아 조각이 늦게 오면 다시 그림
 $('back').onclick = () => { $('result').hidden = true; $('pick').hidden = false; result = null }
 
 // 카톡·라인 인앱 브라우저는 파일 공유·다운로드를 막아서, 들어오자마자 기본 브라우저로 넘김
