@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<meta name="theme-color" content="#0b1230">
+<meta name="theme-color" content="#161f48">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://everythingsoso.com/">
 <meta property="og:title" content="별로 — 내가 간 가게들의 별자리">
@@ -19,21 +19,22 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&text=%EB%B3%84%EB%A1%9C&display=swap" rel="stylesheet"><!-- 로고 "별로" 두 글자만 받음 -->
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
 <!-- 검증용: GA4 측정 ID 생기면 아래 두 줄 주석 해제 -->
 <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXX"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXX')</script> -->
 <style>
   :root {
-    --sky: #0b1230;
-    --sky-2: #141d47;
-    --ink: #e9e6f5;
-    --dim: #8f93b8;
-    --gold: #f4cf6b;
-    --gold-soft: rgba(244, 207, 107, .14);
-    --line: rgba(233, 230, 245, .12);
+    --sky: #161f48;
+    --sky-2: #222c62;
+    --ink: #f1eff9;
+    --dim: #a7abcf;
+    --gold: #f6da8f;
+    --gold-soft: rgba(246, 218, 143, .14);
+    --line: rgba(241, 239, 249, .12);
     --danger: #ff8a8a;
-    --serif: 'Gowun Batang', serif;
+    --serif: 'Gowun Dodum', system-ui, sans-serif; /* 둥근 고딕: 궁서체 느낌 빼기 */
     --sans: 'IBM Plex Sans KR', system-ui, sans-serif;
   }
   * { box-sizing: border-box; }
@@ -43,8 +44,8 @@
     color: var(--ink);
     font: 15px/1.6 var(--sans);
     background:
-      radial-gradient(1200px 600px at 80% -10%, #2a2466 0%, transparent 60%),
-      radial-gradient(800px 500px at -10% 110%, #10305a 0%, transparent 60%),
+      radial-gradient(1200px 600px at 80% -10%, #3a3487 0%, transparent 60%),
+      radial-gradient(800px 500px at -10% 110%, #1e4478 0%, transparent 60%),
       var(--sky);
     background-attachment: fixed;
   }
@@ -60,8 +61,8 @@
   main { position: relative; max-width: 540px; margin: 0 auto; padding: 32px 16px 80px; }
 
   header h1 {
-    font: 700 56px/1 var(--serif); margin: 0; letter-spacing: -.02em;
-    color: var(--gold); text-shadow: 0 0 24px rgba(244, 207, 107, .45);
+    font: 400 60px/1 'Jua', var(--serif); margin: 0; letter-spacing: -.01em;
+    color: var(--gold); text-shadow: 0 0 24px rgba(246, 218, 143, .45);
   }
   header h1 small { font: 400 15px var(--serif); color: var(--dim); margin-left: 10px; letter-spacing: 0; text-shadow: none; }
   header p { margin: 14px 0 0; color: var(--dim); font-size: 15px; }
@@ -75,12 +76,12 @@
     backdrop-filter: blur(6px);
   }
   .step { font: 600 12px var(--sans); letter-spacing: .14em; color: var(--gold); text-transform: uppercase; }
-  .panel h2 { font: 700 22px/1.3 var(--serif); margin: 4px 0 16px; }
+  .panel h2 { font: 400 22px/1.3 var(--serif); margin: 4px 0 16px; }
 
   label { display: block; font-size: 13px; color: var(--dim); margin-bottom: 6px; }
   input {
     width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line);
-    background: rgba(5, 9, 30, .6); color: var(--ink); font: inherit; color-scheme: dark;
+    background: rgba(14, 20, 56, .6); color: var(--ink); font: inherit; color-scheme: dark;
     transition: border-color .15s, box-shadow .15s;
   }
   input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
@@ -91,21 +92,21 @@
   .dp { position: relative; }
   .date-btn {
     width: 100%; display: flex; align-items: center; gap: 10px; padding: 13px 14px; border-radius: 12px;
-    border: 1px solid var(--line); background: rgba(5, 9, 30, .6); color: var(--ink); cursor: pointer;
+    border: 1px solid var(--line); background: rgba(14, 20, 56, .6); color: var(--ink); cursor: pointer;
     font: 600 15px var(--sans); font-variant-numeric: tabular-nums; text-align: left;
     transition: border-color .15s, box-shadow .15s;
   }
   .date-btn svg { flex: none; color: var(--gold); }
   .date-btn small { color: var(--dim); font-weight: 400; margin-left: auto; }
-  .date-btn:hover { border-color: rgba(244, 207, 107, .5); }
+  .date-btn:hover { border-color: rgba(246, 218, 143, .5); }
   .date-btn:focus-visible, .date-btn[aria-expanded="true"] { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
   .cal {
     position: absolute; top: calc(100% + 8px); left: 0; z-index: 20; width: 100%; max-width: 340px; /* 좁은 폰에서 날짜 버튼 폭을 넘지 않게 */ padding: 14px;
-    border-radius: 18px; background: #121a40; border: 1px solid rgba(244, 207, 107, .25);
+    border-radius: 18px; background: #1e2858; border: 1px solid rgba(246, 218, 143, .25);
     box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .85); transform-origin: top left; animation: drop .16s ease-out;
   }
   .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .cal-head strong { font: 700 17px var(--serif); }
+  .cal-head strong { font: 400 17px var(--serif); }
   .cal-head button {
     width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line);
     background: transparent; color: var(--ink); font-size: 18px; cursor: pointer; transition: border-color .12s, color .12s;
@@ -122,11 +123,11 @@
   }
   .cal-grid button:hover:not(:disabled) { background: var(--gold-soft); }
   .cal-grid button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
-  .cal-grid button.today { box-shadow: inset 0 0 0 1px rgba(244, 207, 107, .6); }
+  .cal-grid button.today { box-shadow: inset 0 0 0 1px rgba(246, 218, 143, .6); }
   .cal-grid button[aria-pressed="true"] {
-    background: linear-gradient(180deg, #ffe39a, var(--gold)); color: #1b1640; box-shadow: 0 6px 16px -4px rgba(244, 207, 107, .7);
+    background: linear-gradient(180deg, #ffe39a, var(--gold)); color: #1b1640; box-shadow: 0 6px 16px -4px rgba(246, 218, 143, .7);
   }
-  .cal-grid button:disabled { color: rgba(233, 230, 245, .18); cursor: default; }
+  .cal-grid button:disabled { color: rgba(241, 239, 249, .18); cursor: default; }
   .cal-grid button.has::after {
     content: ''; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px;
     border-radius: 50%; background: var(--gold);
@@ -144,12 +145,12 @@
   .search { position: relative; }
   .search input {
     padding-left: 42px;
-    background: rgba(5, 9, 30, .6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238f93b8' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 14px center / 18px;
+    background: rgba(14, 20, 56, .6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a7abcf' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 14px center / 18px;
   }
   .results {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 10;
     list-style: none; margin: 0; padding: 6px; max-height: 360px; overflow: auto;
-    background: #121a40; border: 1px solid rgba(244, 207, 107, .25); border-radius: 16px;
+    background: #1e2858; border: 1px solid rgba(246, 218, 143, .25); border-radius: 16px;
     box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .85);
     transform-origin: top; animation: drop .16s ease-out;
   }
@@ -196,7 +197,7 @@
     padding: 8px 10px 8px 8px; border-radius: 12px; cursor: pointer; transition: background .1s;
   }
   .opt:hover, .opt[aria-selected="true"] { background: var(--gold-soft); }
-  .opt:active { background: rgba(244, 207, 107, .24); }
+  .opt:active { background: rgba(246, 218, 143, .24); }
   .opt div { min-width: 0; }
   .opt b, .opt span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .opt b { font-weight: 600; }
@@ -217,20 +218,20 @@
   .credit { padding: 6px 10px 2px; text-align: right; font-size: 10px; color: var(--dim); opacity: .7; }
   .thumb::after {
     content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px; border-radius: 50%;
-    background: var(--gold); box-shadow: 0 0 0 3px rgba(244, 207, 107, .3), 0 0 10px var(--gold);
+    background: var(--gold); box-shadow: 0 0 0 3px rgba(246, 218, 143, .3), 0 0 10px var(--gold);
   }
   .thumb em {
     position: absolute; right: -6px; bottom: -6px; width: 24px; height: 24px; display: grid; place-items: center;
-    font-style: normal; font-size: 13px; border-radius: 50%; background: #0b1230; border: 1px solid var(--line);
+    font-style: normal; font-size: 13px; border-radius: 50%; background: #161f48; border: 1px solid var(--line);
   }
   .hint { font-size: 12px; color: var(--dim); margin: 8px 2px 0; }
   .hint.err { color: var(--danger); }
 
   .picked-head { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 0 8px; }
-  .picked-head strong { font: 700 15px var(--serif); }
+  .picked-head strong { font: 400 15px var(--serif); }
   .meter { font: 600 13px var(--sans); color: var(--dim); }
   .meter b { color: var(--gold); font-size: 20px; }
-  .picked { list-style: none; margin: 0; padding: 0; border-left: 1px dashed rgba(244,207,107,.4); margin-left: 6px; }
+  .picked { list-style: none; margin: 0; padding: 0; border-left: 1px dashed rgba(246, 218, 143,.4); margin-left: 6px; }
   .picked li {
     position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
     padding: 9px 0 9px 20px; animation: pop .35s cubic-bezier(.2,1.4,.4,1);
@@ -258,12 +259,12 @@
 
   .cta {
     margin-top: 20px; width: 100%; padding: 16px; border: 0; border-radius: 14px; cursor: pointer;
-    font: 700 17px var(--serif); color: #1b1640;
+    font: 400 17px var(--serif); color: #1b1640;
     background: linear-gradient(180deg, #ffe39a, var(--gold));
-    box-shadow: 0 10px 30px -8px rgba(244,207,107,.6), inset 0 -2px 0 rgba(0,0,0,.15);
+    box-shadow: 0 10px 30px -8px rgba(246, 218, 143,.6), inset 0 -2px 0 rgba(0,0,0,.15);
     transition: transform .12s, box-shadow .12s, opacity .2s;
   }
-  .cta:hover { transform: translateY(-1px); box-shadow: 0 14px 34px -8px rgba(244,207,107,.75), inset 0 -2px 0 rgba(0,0,0,.15); }
+  .cta:hover { transform: translateY(-1px); box-shadow: 0 14px 34px -8px rgba(246, 218, 143,.75), inset 0 -2px 0 rgba(0,0,0,.15); }
   .cta:active { transform: translateY(1px); }
   .cta:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
   .cta:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -276,12 +277,12 @@
   canvas { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: 16px; box-shadow: 0 30px 80px -20px #000; }
   .remarks { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 8px; }
   .remarks li { padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,.04); border-left: 3px solid var(--gold); font-size: 14px; }
-  .remarks li:first-child { font: 700 17px/1.45 var(--serif); border-left-color: #fff; background: var(--gold-soft); }
+  .remarks li:first-child { font: 400 17px/1.45 var(--serif); border-left-color: #fff; background: var(--gold-soft); }
   .name-edit { margin-top: 18px; }
   .saveimg {
     position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
     padding: 24px max(20px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
-    background: rgba(5, 9, 30, .94); animation: fade .16s ease-out;
+    background: rgba(14, 20, 56, .94); animation: fade .16s ease-out;
   }
   .saveimg img { max-width: 100%; max-height: 70dvh; width: auto; height: auto; border-radius: 16px; -webkit-touch-callout: default; }
   .saveimg p { margin: 0; text-align: center; font: 600 15px var(--sans); color: var(--gold); }
@@ -293,18 +294,18 @@
   header { position: relative; }
   .lang {
     position: absolute; top: 4px; right: 0; display: flex; padding: 3px; border-radius: 999px;
-    border: 1px solid var(--line); background: rgba(5, 9, 30, .55);
+    border: 1px solid var(--line); background: rgba(14, 20, 56, .55);
   }
   .lang button {
     width: 36px; height: 30px; border: 0; border-radius: 999px; background: none; cursor: pointer;
-    color: var(--dim); font: 700 14px 'Gowun Batang', serif; transition: background .15s, color .15s;
+    color: var(--dim); font: 400 14px var(--serif); transition: background .15s, color .15s;
   }
   .lang button:hover { color: var(--ink); }
   .lang button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-  .lang button[aria-pressed="true"] { background: var(--gold); color: #1b1640; box-shadow: 0 4px 14px -4px rgba(244, 207, 107, .7); }
+  .lang button[aria-pressed="true"] { background: var(--gold); color: #1b1640; box-shadow: 0 4px 14px -4px rgba(246, 218, 143, .7); }
   /* 일본어: 가나가 있는 글꼴을 앞에, 한글은 원래 글꼴로 */
   :root[lang="ja"] {
-    --serif: 'Zen Old Mincho', 'Gowun Batang', serif;
+    --serif: 'Zen Maru Gothic', 'Gowun Dodum', system-ui, sans-serif;
     --sans: 'IBM Plex Sans JP', 'IBM Plex Sans KR', system-ui, sans-serif;
   }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
@@ -449,8 +450,8 @@ const T = {
   },
 }
 const FONTS = {
-  ko: { serif: '"Gowun Batang"', sans: '"IBM Plex Sans KR"' },
-  ja: { serif: '"Zen Old Mincho", "Gowun Batang"', sans: '"IBM Plex Sans JP", "IBM Plex Sans KR"' },
+  ko: { serif: '"Gowun Dodum"', sans: '"IBM Plex Sans KR"' },
+  ja: { serif: '"Zen Maru Gothic", "Gowun Dodum"', sans: '"IBM Plex Sans JP", "IBM Plex Sans KR"' },
 }
 const pick = () => {
   const q = new URLSearchParams(location.search).get('lang')
@@ -486,7 +487,7 @@ function applyLang() {
     jaFontsLoaded = true
     document.head.append(Object.assign(document.createElement('link'), {
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700&family=IBM+Plex+Sans+JP:wght@400;600&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500&family=IBM+Plex+Sans+JP:wght@400;600&display=swap',
     }))
   }
   document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t()[el.dataset.t] })
@@ -978,7 +979,7 @@ function draw(progress) {
   const { pos, at, scale } = project(a.stars)
 
   const bg = ctx.createLinearGradient(0, 0, 0, H)
-  bg.addColorStop(0, '#0a0f2c'); bg.addColorStop(.6, '#151c4a'); bg.addColorStop(1, '#2a1f55')
+  bg.addColorStop(0, '#141b44'); bg.addColorStop(.6, '#222b66'); bg.addColorStop(1, '#3a2e72')
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H)
 
   const rand = rng([...a.path.join('')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7))
@@ -992,8 +993,8 @@ function draw(progress) {
   // 선: 방문 순서대로 progress 만큼만
   const segs = a.path.length - 1
   const drawn = progress * segs
-  ctx.strokeStyle = 'rgba(244,207,107,.55)'; ctx.lineWidth = 3; ctx.lineCap = 'round'
-  ctx.shadowColor = 'rgba(244,207,107,.6)'; ctx.shadowBlur = 12
+  ctx.strokeStyle = 'rgba(246, 218, 143,.55)'; ctx.lineWidth = 3; ctx.lineCap = 'round'
+  ctx.shadowColor = 'rgba(246, 218, 143,.6)'; ctx.shadowBlur = 12
   ctx.beginPath()
   for (let i = 0; i < Math.ceil(drawn); i++) {
     const p = pos.get(a.path[i]), q = pos.get(a.path[i + 1])
@@ -1007,8 +1008,8 @@ function draw(progress) {
   for (const s of a.stars) {
     const { x, y } = pos.get(s.id)
     const r = 9 + Math.min(s.count, 5) * 5
-    ctx.shadowColor = '#f4cf6b'; ctx.shadowBlur = 20 + s.count * 10
-    ctx.fillStyle = s.count >= 2 ? '#fff6d6' : '#f4cf6b'
+    ctx.shadowColor = '#f6da8f'; ctx.shadowBlur = 20 + s.count * 10
+    ctx.fillStyle = s.count >= 2 ? '#fff6d6' : '#f6da8f'
     if (s.count >= 2) sparkle(ctx, x, y, r * 1.8)
     else { ctx.beginPath(); ctx.arc(x, y, r * 0.7, 0, Math.PI * 2); ctx.fill() }
   }
@@ -1016,22 +1017,22 @@ function draw(progress) {
 
   // 글자
   ctx.textAlign = 'left'
-  ctx.fillStyle = '#8f93b8'; ctx.font = `600 30px ${F.sans}`
+  ctx.fillStyle = '#a7abcf'; ctx.font = `600 30px ${F.sans}`
   ctx.fillText(`${a.from.replaceAll('-', '.')} — ${a.to.slice(5).replace('-', '.')}`, 90, 120)
-  ctx.fillStyle = '#f4cf6b'; ctx.font = `700 84px ${F.serif}`
-  ctx.shadowColor = 'rgba(244,207,107,.5)'; ctx.shadowBlur = 24
+  ctx.fillStyle = '#f6da8f'; ctx.font = `400 84px ${F.serif}`
+  ctx.shadowColor = 'rgba(246, 218, 143,.5)'; ctx.shadowBlur = 24
   ctx.fillText(name, 90, 205)
   ctx.shadowBlur = 0
 
   const values = [a.unique, a.lines, `${a.diameter.toFixed(1)}km`]
   t().stats.forEach((k, i) => {
     const x = 90 + i * 300
-    ctx.fillStyle = '#8f93b8'; ctx.font = `600 28px ${F.sans}`; ctx.fillText(k, x, 1050)
-    ctx.fillStyle = '#e9e6f5'; ctx.font = `700 72px ${F.serif}`; ctx.fillText(String(values[i]), x, 1135)
+    ctx.fillStyle = '#a7abcf'; ctx.font = `600 28px ${F.sans}`; ctx.fillText(k, x, 1050)
+    ctx.fillStyle = '#f1eff9'; ctx.font = `400 72px ${F.serif}`; ctx.fillText(String(values[i]), x, 1135)
   })
-  ctx.fillStyle = 'rgba(244,207,107,.25)'; ctx.fillRect(90, 1200, W - 180, 2)
+  ctx.fillStyle = 'rgba(246, 218, 143,.25)'; ctx.fillRect(90, 1200, W - 180, 2)
 
-  ctx.textAlign = 'right'; ctx.fillStyle = '#8f93b8'; ctx.font = `600 26px ${F.sans}`
+  ctx.textAlign = 'right'; ctx.fillStyle = '#a7abcf'; ctx.font = `600 26px ${F.sans}`
   ctx.fillText(t().card, W - 90, 1300)
 }
 
@@ -1048,7 +1049,7 @@ function animate() {
 
 // 캔버스는 글꼴이 다 받아진 뒤에 그려야 기본 글꼴로 안 나옴
 const fontsReady = () => Promise.all(
-  [`700 84px ${FONTS[lang].serif}`, `600 30px ${FONTS[lang].sans}`].map((f) => document.fonts.load(f, t().card + t().step2)),
+  [`400 84px ${FONTS[lang].serif}`, `600 30px ${FONTS[lang].sans}`].map((f) => document.fonts.load(f, t().card + t().step2)),
 )
 
 async function showResult(anim = false) {
