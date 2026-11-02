@@ -65,7 +65,8 @@
 
 <br>
 
-Vanilla JS · Kakao Local · Google Places · OpenStreetMap · GitHub Pages
+Vanilla JS · Kakao Local · Google Places · OpenStreetMap · GitHub Pages<br>
+Jua · Gowun Dodum · IBM Plex Sans KR · Zen Maru Gothic
 
 </sub>
 
